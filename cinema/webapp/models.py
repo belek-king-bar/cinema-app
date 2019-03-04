@@ -7,7 +7,7 @@ class Movie(models.Model):
     poster = models.ImageField(upload_to='posters', null=True, blank=True)
     release_date = models.DateField()
     finish_date = models.DateField(null=True, blank=True)
-    category = models.ManyToManyField('Category', related_name="category", verbose_name="Жанр")
+    category = models.ManyToManyField('Category', related_name="category", blank=True, verbose_name="Жанр")
 
 
     def __str__(self):
