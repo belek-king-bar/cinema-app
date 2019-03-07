@@ -68,7 +68,7 @@ class Ticket(models.Model):
     go_back = models.BooleanField(default=False)
 
     def __str__(self):
-        return "%s, Ряд: %s, Место: %s, %s" % (self.show, self.seat.row, self.seat.place, self.sale)
+        return "%s, Ряд: %s, Место: %s, Скидка: %s" % (self.show, self.seat.row, self.seat.place, self.sale)
 
 
 def generate_code():
@@ -98,4 +98,4 @@ class Booking(models.Model):
 
 
     def __str__(self):
-        return "%s,    %s в %s" % (self.show, self.status, self.created_at.strftime('%d.%m.%Y %H:%M'))
+        return "%s, %s в %s" % (self.show, self.status, self.created_at.strftime('%d.%m.%Y %H:%M'))

@@ -47,7 +47,7 @@ class SeatSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Seat
-        fields = ('url', 'id', 'hall', 'row', 'place')
+        fields = ('url', 'id', 'hall', 'hall_url', 'row', 'place')
 
 
 class ShowSerializer(serializers.ModelSerializer):
