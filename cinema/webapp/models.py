@@ -53,7 +53,7 @@ class Show(models.Model):
 
 class Sale(models.Model):
     name = models.CharField(max_length=255, verbose_name="Название скидки")
-    how = models.DecimalField(max_digits=10, decimal_places=2)
+    how = models.DecimalField(max_digits=4, decimal_places=2)
     start_date = models.DateField(null=True, blank=True)
     finish_date = models.DateField(null=True, blank=True)
 
@@ -68,7 +68,7 @@ class Ticket(models.Model):
     go_back = models.BooleanField(default=False)
 
     def __str__(self):
-        return "%s, %s %s" % (self.show, self.seat, self.sale)
+        return "%s, Ряд: %s, Место: %s, %s" % (self.show, self.seat.row, self.seat.place, self.sale)
 
 
 def generate_code():
