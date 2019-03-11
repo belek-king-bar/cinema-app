@@ -4,13 +4,13 @@ from api_v1 import views
 
 router = routers.DefaultRouter()
 router.register(r'movies', views.MovieViewSet)
-router.register(r'seat', views.SeatViewSet)
-router.register(r'show', views.ShowViewSet)
-router.register(r'category', views.CategoryViewSet)
-router.register(r'hall', views.HallViewSet)
-router.register(r'sale', views.SaleViewSet)
-router.register(r'ticket', views.TicketViewSet)
-router.register(r'booking', views.BookingViewSet)
+router.register(r'seats', views.SeatViewSet)
+router.register(r'shows', views.ShowViewSet)
+router.register(r'categories', views.CategoryViewSet)
+router.register(r'halls', views.HallViewSet)
+router.register(r'sales', views.SaleViewSet)
+router.register(r'tickets', views.TicketViewSet)
+router.register(r'bookings', views.BookingViewSet)
 
 
 app_name = 'api_v1'
