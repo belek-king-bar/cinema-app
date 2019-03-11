@@ -32,6 +32,7 @@ class MovieDetail extends Component {
 
         // достаём данные из movie
         const {name, poster, description, release_date, finish_date, categories} = this.state.movie;
+        console.log(categories);
 
         return <div>
             {/* постер, если есть */}

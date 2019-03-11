@@ -9,13 +9,6 @@ class CategorySerializer(serializers.ModelSerializer):
         fields = ('url', 'id', 'name', 'description')
 
 
-class InlineCategorySerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = Category
-        fields = ('id', 'name')
-
-
 class InlineSeatSerializer(serializers.ModelSerializer):
     hall_url = serializers.HyperlinkedRelatedField(view_name='api_v1:hall-detail', source='hall', read_only=True)
 
@@ -23,14 +16,26 @@ class InlineSeatSerializer(serializers.ModelSerializer):
         model = Seat
         fields = ('id', 'hall', 'hall_url', 'row', 'place')
 
+class InlineCategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = ('id', 'name')
 
-class MovieSerializer(serializers.ModelSerializer):
+
+# Сериализатор фильмов для создания/обновления
+# выводит категории по умолчанию - в виде списка id категорий
+class MovieCreateSerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='api_v1:movie-detail')
-    category = InlineCategorySerializer(many=True, read_only=True)
 
     class Meta:
         model = Movie
-        fields = ('url', 'id', 'name', 'description', 'poster', 'release_date', 'finish_date', 'category')
+        fields = ('url', 'id', 'name', 'description', 'poster', 'release_date', 'finish_date', 'categories')
+
+
+# Сериализатор для просмотра фильмов
+# выводит категории в виде списка вложенных объектов, представленных сериализатором InlineCategorySerializer.
+class MovieDisplaySerializer(MovieCreateSerializer):
+    categories = InlineCategorySerializer(many=True, read_only=True)
 
 
 class HallSerializer(serializers.ModelSerializer):
