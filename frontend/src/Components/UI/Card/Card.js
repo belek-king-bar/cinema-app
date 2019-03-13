@@ -18,6 +18,7 @@ const Card = props => {
             {props.link ? <NavLink to={props.link.url} className="btn btn-primary">
                 {props.link.text}
             </NavLink> : null}
+            <button type="button" className="ml-2 btn btn-warning" onClick={props.onDelete}>Delete</button>
         </div> : null}
     </div>
 };
