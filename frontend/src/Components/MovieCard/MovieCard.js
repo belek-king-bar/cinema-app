@@ -17,7 +17,7 @@ const MovieCard = props => {
     };
 
     // возвращаем (рисуем) карточку с данными из movie и ссылкой.
-    return <Card header={name} image={poster} link={link} onDelete={onDelete} className='h-100'/>;
+    return <Card header={name} image={poster} link={link} onDelete={onDelete} className='h-100 mb-4'/>;
 };
 
 
