@@ -18,7 +18,7 @@ class Menu extends Component {
                     <MenuItem to="/movies/add">Добавить фильм</MenuItem>
                     <MenuItem to="/halls/">Залы</MenuItem>
                     <MenuItem to="/halls/add">Добавить залл</MenuItem>
-
+                    {localStorage.getItem('auth-token') ? <MenuItem to="/logout">Выйти</MenuItem> : <MenuItem to="/login">Войти</MenuItem>}
                 </ul>
             </div>
         </Fragment>
