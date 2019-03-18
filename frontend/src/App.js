@@ -7,10 +7,12 @@ import MovieDetail from "./Containers/MovieDetail/MovieDetail";
 import MovieAdd from "./Containers/MovieAdd/MovieAdd";
 import MovieEdit from "./Containers/MovieEdit/MovieEdit";
 import HallList from "./Containers/HallList/HallList";
-import HallDetail from "./Containers/HallDetail/HallDetail"
-import HallAdd from "./Containers/HallAdd/HallAdd"
-import HallEdit from "./Containers/HallEdit/HallEdit"
-import Layout from "./Components/Layout/Layout"
+import HallDetail from "./Containers/HallDetail/HallDetail";
+import HallAdd from "./Containers/HallAdd/HallAdd";
+import HallEdit from "./Containers/HallEdit/HallEdit";
+import Layout from "./Components/Layout/Layout";
+import Login from './Containers/Login/Login';
+import Logout from './Containers/Logout/Logout';
 
 class App extends Component {
     render() {
@@ -19,6 +21,8 @@ class App extends Component {
                     <Layout>
                         <div className="container">
                             <Switch>
+                                <Route path="/login" component={Login}/>
+                                <Route path="/logout" component={Logout}/>
                                 <Route path="/halls/add" component={HallAdd}/>
                                 <Route path="/halls/:id/edit" component={HallEdit}/>
                                 <Route path="/halls/:id" component={HallDetail}/>
