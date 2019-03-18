@@ -1,4 +1,3 @@
-from django.views.decorators.csrf import csrf_exempt
 from webapp.models import Movie, Category, Hall, Seat, Show, Sale, Ticket, Booking
 from rest_framework import viewsets
 from api_v1.serializers import MovieDisplaySerializer, MovieCreateSerializer, HallSerializer, CategorySerializer, SeatSerializer, ShowSerializer, SaleSerializer, \
@@ -10,6 +9,7 @@ class NoAuthModelViewSet(viewsets.ModelViewSet):
 
 class MovieViewSet(NoAuthModelViewSet):
     queryset = Movie.objects.order_by('id')
+    filterset_fields = ('id',)
 
 
     def get_serializer_class(self):
@@ -18,14 +18,30 @@ class MovieViewSet(NoAuthModelViewSet):
         else:
             return MovieCreateSerializer
 
-
 class HallViewSet(NoAuthModelViewSet):
     queryset = Hall.objects.all()
     serializer_class = HallSerializer
 
 class ShowViewSet(NoAuthModelViewSet):
-    queryset = Show.objects.all().order_by('start_datetime')
+    queryset = Show.objects.all()
     serializer_class = ShowSerializer
+
+    def get_queryset(self):
+        queryset = self.queryset
+        movie_id = self.request.query_params.get('movie_id', None)
+        hall_id = self.request.query_params.get('hall_id', None)
+        starts_after = self.request.query_params.get('starts_after', None)
+        starts_before = self.request.query_params.get('starts_before', None)
+
+        if movie_id:
+            queryset = queryset.filter(movie_id=movie_id)
+        if hall_id:
+            queryset = queryset.filter(hall_id=hall_id)
+        if starts_after:
+            queryset = queryset.filter(start_datetime__gte=starts_after)
+        if starts_before:
+            queryset = queryset.filter(start_datetime__lte=starts_before)
+        return queryset
 
 class SeatViewSet(NoAuthModelViewSet):
     queryset = Seat.objects.all()

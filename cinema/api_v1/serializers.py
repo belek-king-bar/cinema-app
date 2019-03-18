@@ -40,10 +40,11 @@ class MovieDisplaySerializer(MovieCreateSerializer):
 
 class HallSerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='api_v1:hall-detail')
+    seat = InlineSeatSerializer(many=True, read_only=True)
 
     class Meta:
         model = Hall
-        fields = ('url', 'id', 'name')
+        fields = ('url', 'id', 'name', 'seat')
 
 
 class SeatSerializer(serializers.ModelSerializer):
@@ -52,17 +53,28 @@ class SeatSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Seat
-        fields = ('url', 'id', 'hall', 'hall_url', 'row', 'place')
+        fields = ('url', 'id', 'hall', 'hall_url')
 
 
 class ShowSerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='api_v1:show-detail')
     movie_url = serializers.HyperlinkedRelatedField(view_name='api_v1:movie-detail', source='movie', read_only=True)
     hall_url = serializers.HyperlinkedRelatedField(view_name='api_v1:hall-detail', source='hall', read_only=True)
+    hall_name = serializers.SerializerMethodField(read_only=True, source='hall')
+    movie_name = serializers.SerializerMethodField(read_only=True, source='movie')
+
+    # имя метода должно быть get_ + название поля (hall_name -> get_hall_name())
+    # метод принимает один аргумент - сериализуемый объект (в данном случае - сеанс).
+    def get_hall_name(self, show):
+        return show.hall.name
+
+    def get_movie_name(self, show):
+        return show.movie.name
 
     class Meta:
         model = Show
-        fields = ('url', 'id', 'movie', 'hall', 'start_datetime', 'finish_datetime', 'price', 'movie_url', 'hall_url')
+        fields = ('url', 'id', 'movie', 'movie_url', 'hall', 'hall_url', 'start_datetime', 'finish_datetime', 'price',
+                  'hall_name', 'movie_name')
 
 
 class SaleSerializer(serializers.ModelSerializer):
