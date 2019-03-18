@@ -4,10 +4,8 @@ from api_v1.serializers import MovieDisplaySerializer, MovieCreateSerializer, Ha
     TicketSerializer, BookingSerializer
 
 
-class NoAuthModelViewSet(viewsets.ModelViewSet):
-    authentication_classes = []
 
-class MovieViewSet(NoAuthModelViewSet):
+class MovieViewSet(viewsets.ModelViewSet):
     queryset = Movie.objects.order_by('id')
     filterset_fields = ('id',)
 
@@ -18,11 +16,11 @@ class MovieViewSet(NoAuthModelViewSet):
         else:
             return MovieCreateSerializer
 
-class HallViewSet(NoAuthModelViewSet):
+class HallViewSet(viewsets.ModelViewSet):
     queryset = Hall.objects.all()
     serializer_class = HallSerializer
 
-class ShowViewSet(NoAuthModelViewSet):
+class ShowViewSet(viewsets.ModelViewSet):
     queryset = Show.objects.all()
     serializer_class = ShowSerializer
 
@@ -43,23 +41,23 @@ class ShowViewSet(NoAuthModelViewSet):
             queryset = queryset.filter(start_datetime__lte=starts_before)
         return queryset
 
-class SeatViewSet(NoAuthModelViewSet):
+class SeatViewSet(viewsets.ModelViewSet):
     queryset = Seat.objects.all()
     serializer_class = SeatSerializer
 
-class CategoryViewSet(NoAuthModelViewSet):
+class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
 
-class SaleViewSet(NoAuthModelViewSet):
+class SaleViewSet(viewsets.ModelViewSet):
     queryset = Sale.objects.all().order_by('how')
     serializer_class = SaleSerializer
 
-class TicketViewSet(NoAuthModelViewSet):
+class TicketViewSet(viewsets.ModelViewSet):
     queryset = Ticket.objects.all()
     serializer_class = TicketSerializer
 
-class BookingViewSet(NoAuthModelViewSet):
+class BookingViewSet(viewsets.ModelViewSet):
     queryset = Booking.objects.all().order_by('-created_at')
     serializer_class = BookingSerializer
 
