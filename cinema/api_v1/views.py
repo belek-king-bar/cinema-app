@@ -2,12 +2,23 @@ from webapp.models import Movie, Category, Hall, Seat, Show, Sale, Ticket, Booki
 from rest_framework import viewsets
 from api_v1.serializers import MovieDisplaySerializer, MovieCreateSerializer, HallSerializer, CategorySerializer, SeatSerializer, ShowSerializer, SaleSerializer, \
     TicketSerializer, BookingSerializer
+from rest_framework.permissions import IsAuthenticated
 
 
+class BaseViewSet(viewsets.ModelViewSet):
+    # Метод, который отвечает за проверку разрешений на доступ к данному ViewSet
+    def get_permissions(self):
+        permissions = super().get_permissions()
+        # IsAuthenticated - класс разрешения, требующий аутентификацию
+        # добавляем его объект ( IsAuthenticated() ) к разрешениям только
+        # для "опасных" методов - добавление, редактирование, удаление данных.
+        if self.request.method in ["POST", "DELETE", "PUT", "PATCH"]:
+            permissions.append(IsAuthenticated())
+        return permissions
 
-class MovieViewSet(viewsets.ModelViewSet):
+
+class MovieViewSet(BaseViewSet):
     queryset = Movie.objects.order_by('id')
-    filterset_fields = ('id',)
 
 
     def get_serializer_class(self):
@@ -16,11 +27,13 @@ class MovieViewSet(viewsets.ModelViewSet):
         else:
             return MovieCreateSerializer
 
-class HallViewSet(viewsets.ModelViewSet):
+
+class HallViewSet(BaseViewSet):
     queryset = Hall.objects.all()
     serializer_class = HallSerializer
 
-class ShowViewSet(viewsets.ModelViewSet):
+
+class ShowViewSet(BaseViewSet):
     queryset = Show.objects.all()
     serializer_class = ShowSerializer
 
@@ -41,23 +54,32 @@ class ShowViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(start_datetime__lte=starts_before)
         return queryset
 
-class SeatViewSet(viewsets.ModelViewSet):
+
+
+class SeatViewSet(BaseViewSet):
     queryset = Seat.objects.all()
     serializer_class = SeatSerializer
 
-class CategoryViewSet(viewsets.ModelViewSet):
+
+
+class CategoryViewSet(BaseViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
 
-class SaleViewSet(viewsets.ModelViewSet):
+
+
+class SaleViewSet(BaseViewSet):
     queryset = Sale.objects.all().order_by('how')
     serializer_class = SaleSerializer
 
-class TicketViewSet(viewsets.ModelViewSet):
+
+
+class TicketViewSet(BaseViewSet):
     queryset = Ticket.objects.all()
     serializer_class = TicketSerializer
 
-class BookingViewSet(viewsets.ModelViewSet):
+
+class BookingViewSet(BaseViewSet):
     queryset = Booking.objects.all().order_by('-created_at')
     serializer_class = BookingSerializer
 
