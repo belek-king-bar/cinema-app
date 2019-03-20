@@ -42,7 +42,9 @@ class HallAdd extends Component {
         console.log(this.state.hall);
 
 
-        axios.post(HALLS_URL, this.state.hall)
+        axios.post(HALLS_URL, this.state.hall, {headers: {
+                Authorization: "Token " + localStorage.getItem('auth-token')
+            }})
             .then(response => {
                 console.log(response.data);
                 if (response.status === 201) return response.data;

@@ -1,7 +1,6 @@
 import React, {Fragment, Component} from 'react';
 import {HALLS_URL, MOVIES_URL} from "../../api-urls";
 import HallCard from "../../Components/HallCard/HallCard.js";
-import {NavLink} from "react-router-dom";
 import axios from 'axios';
 
 
@@ -20,7 +19,9 @@ class HallList extends Component {
     }
 
     hallDeleted = (hallId) => {
-        axios.delete(HALLS_URL + hallId + '/').then(response =>{
+        axios.delete(HALLS_URL + hallId + '/', {headers: {
+                Authorization: "Token " + localStorage.getItem('auth-token')
+            }}).then(response =>{
             console.log(response.data);
             this.setState(prevState => {
                 let newState = {...prevState};

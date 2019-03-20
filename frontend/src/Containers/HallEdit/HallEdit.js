@@ -15,7 +15,9 @@ class HallEdit extends Component {
     componentDidMount() {
         const match = this.props.match;
 
-        axios.get(HALLS_URL + match.params.id)
+        axios.get(HALLS_URL + match.params.id, {headers: {
+                Authorization: "Token " + localStorage.getItem('auth-token')
+            }})
             .then(response => {
                 console.log(response.data);
                 return response.data;
@@ -53,7 +55,9 @@ class HallEdit extends Component {
         });
 
         console.log(this.state.hall);
-        axios.put(HALLS_URL + this.state.hall.id + '/', this.state.hall)
+        axios.put(HALLS_URL + this.state.hall.id + '/', this.state.hall, {headers: {
+                Authorization: "Token " + localStorage.getItem('auth-token')
+            }})
             .then(response => {
                 console.log(response.data);
                 if (response.status === 200) return response.data;
