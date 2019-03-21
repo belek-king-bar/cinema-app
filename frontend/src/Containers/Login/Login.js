@@ -50,23 +50,25 @@ class Login extends Component {
 
     render() {
         const {username, password} = this.state.credentials;
-        return <Fragment>
-            <h2>Вход</h2>
+        return <Fragment className="form-row align-items-center">
+            <h2 className="mb-3">Вход</h2>
             <form onSubmit={this.formSubmitted}>
                 {this.showErrors('non_field_errors')}
-                <div className="form-row">
-                    <label className="font-weight-bold">Имя пользователя</label>
+                <div className="col-sm-3 my-1 mb-2">
+                    <label className="sr-only">Имя пользователя</label>
                     <input type="text" className="form-control" name="username" value={username}
-                           onChange={this.inputChanged}/>
+                           onChange={this.inputChanged} placeholder="Имя пользователя"/>
                     {this.showErrors('username')}
                 </div>
-                <div className="form-row">
-                    <label className="font-weight-bold">Пароль</label>
+                <div className="col-sm-3 my-1 mb-2">
+                    <label className="sr-only">Пароль</label>
                     <input type="password" className="form-control mb-3" name="password" value={password}
-                           onChange={this.inputChanged}/>
+                           onChange={this.inputChanged} placeholder="Пароль"/>
                     {this.showErrors('password')}
                 </div>
-                <button type="submit" className="btn btn-primary">Войти</button>
+                <div className="col-auto my-1">
+                    <button type="submit" className="btn btn-primary">Войти</button>
+                </div>
             </form>
         </Fragment>
         }

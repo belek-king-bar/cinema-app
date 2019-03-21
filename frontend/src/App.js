@@ -13,6 +13,7 @@ import HallEdit from "./Containers/HallEdit/HallEdit";
 import Layout from "./Components/Layout/Layout";
 import Login from './Containers/Login/Login';
 import Logout from './Containers/Logout/Logout';
+import Register from './Components/UI/Register/Register'
 import AuthRoute from "./Components/AuthRoute/AuthRoute";
 
 
@@ -25,6 +26,7 @@ class App extends Component {
                             <Switch>
                                 <Route path="/login" component={Login}/>
                                 <Route path="/logout" component={Logout}/>
+                                <Route path="/register" component={Register}/>
                                 <AuthRoute path="/halls/add" component={HallAdd}/>
                                 <AuthRoute path="/halls/:id/edit" component={HallEdit}/>
                                 <Route path="/halls/:id" component={HallDetail}/>
