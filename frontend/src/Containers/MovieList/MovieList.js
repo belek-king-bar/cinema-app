@@ -20,20 +20,31 @@ class MovieList extends Component {
     }
 
     movieDeleted = (movieId) => {
-        axios.delete(MOVIES_URL + movieId + '/').then(response =>{
-            console.log(response.data);
-            this.setState(prevState => {
-                let newState = {...prevState};
-                let movies = [...newState.movies];
-                let movieIndex = movies.findIndex(movie => movie.id === movieId);
-                movies.splice(movieIndex, 1);
-                newState.movies = movies;
-                return newState;
-            })
-        }).catch(error => {
+        if(localStorage.getItem('auth-token')) {
+            axios.delete(MOVIES_URL + movieId + '/', {
+                headers: {
+                    Authorization: "Token " + localStorage.getItem('auth-token')
+                }
+            }).then(response => {
+                console.log(response.data);
+                this.setState(prevState => {
+                    let newState = {...prevState};
+                    let movies = [...newState.movies];
+                    let movieIndex = movies.findIndex(movie => movie.id === movieId);
+                    movies.splice(movieIndex, 1);
+                    newState.movies = movies;
+                    return newState;
+                })
+            }).catch(error => {
                 console.log(error);
                 console.log(error.response);
             });
+        } else {
+            this.props.history.push({
+                pathname: "/login",
+                state: {next: this.props.location}
+            })
+        }
     };
 
     render() {

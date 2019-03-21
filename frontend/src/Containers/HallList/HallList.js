@@ -19,22 +19,31 @@ class HallList extends Component {
     }
 
     hallDeleted = (hallId) => {
-        axios.delete(HALLS_URL + hallId + '/', {headers: {
-                Authorization: "Token " + localStorage.getItem('auth-token')
-            }}).then(response =>{
-            console.log(response.data);
-            this.setState(prevState => {
-                let newState = {...prevState};
-                let halls = [...newState.halls];
-                let hallIndex = halls.findIndex(hall => hall.id === hallId);
-                halls.splice(hallIndex, 1);
-                newState.halls = halls;
-                return newState;
-            })
-        }).catch(error => {
+        if(localStorage.getItem('auth-token')) {
+            axios.delete(HALLS_URL + hallId + '/', {
+                headers: {
+                    Authorization: "Token " + localStorage.getItem('auth-token')
+                }
+            }).then(response => {
+                console.log(response.data);
+                this.setState(prevState => {
+                    let newState = {...prevState};
+                    let halls = [...newState.halls];
+                    let hallIndex = halls.findIndex(hall => hall.id === hallId);
+                    halls.splice(hallIndex, 1);
+                    newState.halls = halls;
+                    return newState;
+                })
+            }).catch(error => {
                 console.log(error);
                 console.log(error.response);
             });
+        } else {
+            this.props.history.push({
+                pathname: "/login",
+                state: {next: this.props.location}
+            })
+        }
     };
 
     render() {
