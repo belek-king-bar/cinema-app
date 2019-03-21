@@ -7,7 +7,7 @@ import {Container} from 'reactstrap';
 class HallEdit extends Component {
     state = {
         hall: [],
-        alert: null,
+        errors: null,
         submitDisabled: false
     };
 
@@ -67,13 +67,19 @@ class HallEdit extends Component {
                 console.log(error);
                 this.setState(prevState => {
                     let newState = {...prevState};
-                    newState.alert = {type: 'danger', message: `Hall was not added!`};
+                    newState.errors = error.response.data;
                     newState.submitDisabled = false;
                     return newState;
                 });
             });
     };
 
+    showErrors = (name) => {
+        if(this.state.errors && this.state.errors[name]) {
+            return this.state.errors[name].map((error, index) => <p className="text-danger" key={index}>{error}</p>);
+        }
+        return null;
+    };
 
     render() {
         if (!this.state.hall) return null;
@@ -81,9 +87,12 @@ class HallEdit extends Component {
         return <Container className="mt-3">
             {alert}
             <form onSubmit={this.formSubmitted}>
+                {this.showErrors('non_field_errors')}
                 <div className="form-group">
                     <label className="font-weight-bold">Название</label>
-                    <input type="text" className="form-control" name="name" value={this.state.hall.name} onChange={this.inputChanged}/>
+                    <input type="text" className="form-control" name="name" value={this.state.hall.name}
+                           onChange={this.inputChanged}/>
+                    {this.showErrors('name')}
                 </div>
                 <button disabled={this.state.submitDisabled} type="submit"
                         className="btn btn-primary">Сохранить</button>
