@@ -18,7 +18,7 @@ class BaseViewSet(viewsets.ModelViewSet):
 
 
 class MovieViewSet(BaseViewSet):
-    queryset = Movie.objects.order_by('id')
+    queryset = Movie.objects.active().order_by('id')
 
 
     def get_serializer_class(self):
@@ -27,10 +27,18 @@ class MovieViewSet(BaseViewSet):
         else:
             return MovieCreateSerializer
 
+    def perform_destroy(self, instance):
+        instance.is_deleted = True
+        instance.save()
+
 
 class HallViewSet(BaseViewSet):
-    queryset = Hall.objects.all()
+    queryset = Hall.objects.active().order_by('id')
     serializer_class = HallSerializer
+
+    def perform_destroy(self, instance):
+        instance.is_deleted = True
+        instance.save()
 
 
 class ShowViewSet(BaseViewSet):

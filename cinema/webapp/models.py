@@ -3,6 +3,15 @@ import random
 import string
 from django.conf import settings
 
+
+class SoftDeleteManager(models.Manager):
+    def active(self):
+        return self.filter(is_deleted=False)
+
+    def deleted(self):
+        return self.filter(is_deleted=True)
+
+
 # Create your models here.
 class Movie(models.Model):
     name = models.CharField(max_length=255)
@@ -10,7 +19,10 @@ class Movie(models.Model):
     poster = models.ImageField(upload_to='posters', null=True, blank=True)
     release_date = models.DateField()
     finish_date = models.DateField(null=True, blank=True)
+    is_deleted = models.BooleanField(default=False)
     categories = models.ManyToManyField('Category', related_name="movie", blank=True, verbose_name="Жанр")
+
+    objects = SoftDeleteManager()
 
 
     def __str__(self):
@@ -28,6 +40,9 @@ class Category(models.Model):
 
 class Hall(models.Model):
     name = models.CharField(max_length=255, verbose_name="Название зала")
+    is_deleted = models.BooleanField(default=False)
+
+    objects = SoftDeleteManager()
 
     def __str__(self):
         return self.name
