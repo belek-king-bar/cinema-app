@@ -10,7 +10,7 @@ class MovieEdit extends Component {
         movie: null,
 
         // сообщение об ошибке
-        alert: null,
+        errors: {}
     };
 
     componentDidMount() {
@@ -34,14 +34,6 @@ class MovieEdit extends Component {
             });
     }
 
-    // вывод сообщение об ошибке
-    showErrorAlert = (error) => {
-        this.setState(prevState => {
-            let newState = {...prevState};
-            newState.alert = {type: 'danger', message: `Movie was not added!`};
-            return newState;
-        });
-    };
 
     // сборка данных для запроса
     gatherFormData = (movie) => {
@@ -82,19 +74,19 @@ class MovieEdit extends Component {
             })
             .catch(error => {
                 console.log(error);
-                // error.response - ответ с сервера
-                // при ошибке 400 в ответе с сервера содержатся ошибки валидации
-                // пока что выводим их в консоль
-                console.log(error.response);
-                this.showErrorAlert(error.response);
+                this.setState(prevState => {
+                    let newState = {...prevState};
+                    newState.errors = error.response.data;
+                    newState.submitDisabled = false;
+                    return newState;
+                });
             });
     };
 
     render() {
-        const {alert, movie} = this.state;
+        const {movie} = this.state;
         return <Fragment>
-            {alert ? <div className={"mb-2 alert alert-" + alert.type}>{alert.message}</div> : null}
-            {movie ? <MovieForm onSubmit={this.formSubmitted} movie={movie}/> : null}
+            {movie ? <MovieForm onSubmit={this.formSubmitted} movie={movie} errors={this.state.errors}/> : null}
         </Fragment>
     }
 }

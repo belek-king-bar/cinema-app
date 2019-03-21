@@ -7,17 +7,9 @@ import MovieForm from "../../Components/MovieForm/MovieForm";
 class MovieAdd extends Component {
     state = {
         // сообщение об ошибке
-        alert: null,
+        errors: {}
     };
 
-    // вывод сообщение об ошибке
-    showErrorAlert = (error) => {
-        this.setState(prevState => {
-            let newState = {...prevState};
-            newState.alert = {type: 'danger', message: `Movie was not added!`};
-            return newState;
-        });
-    };
 
     // сборка данных для запроса
     gatherFormData = (movie) => {
@@ -57,20 +49,19 @@ class MovieAdd extends Component {
                 this.props.history.replace('/movies/' + movie.id);
             })
             .catch(error => {
-                console.log(error);
-                // error.response - ответ с сервера
-                // при ошибке 400 в ответе с сервера содержатся ошибки валидации
-                // пока что выводим их в консоль
-                console.log(error.response);
-                this.showErrorAlert(error.response);
+                this.setState(prevState => {
+                    console.log(error);
+                    let newState = {...prevState};
+                    newState.errors = error.response.data;
+                    newState.submitDisabled = false;
+                    return newState;
+                });
             });
     };
 
     render() {
-        const alert = this.state.alert;
         return <Fragment>
-            {alert ? <div className={"mb-2 alert alert-" + alert.type}>{alert.message}</div> : null}
-            <MovieForm onSubmit={this.formSubmitted}/>
+            <MovieForm onSubmit={this.formSubmitted} errors={this.state.errors}/>
         </Fragment>
     }
 }
