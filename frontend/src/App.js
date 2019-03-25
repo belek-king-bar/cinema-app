@@ -13,8 +13,10 @@ import HallEdit from "./Containers/HallEdit/HallEdit";
 import Layout from "./Components/Layout/Layout";
 import Login from './Containers/Login/Login';
 import Logout from './Containers/Logout/Logout';
-import Register from './Components/UI/Register/Register'
 import AuthRoute from "./Components/AuthRoute/AuthRoute";
+import Register from "./Containers/Register/Register";
+import RegisterActivate from "./Containers/Register/RegisterActivate/RegisterActivate";
+import UserDetail from './Containers/User/User'
 
 
 class App extends Component {
@@ -26,7 +28,10 @@ class App extends Component {
                             <Switch>
                                 <Route path="/login" component={Login}/>
                                 <Route path="/logout" component={Logout}/>
+                                <Route path="/register" component={Register} exact/>
+                                <Route path="/register/activate" component={RegisterActivate}/>
                                 <Route path="/register" component={Register}/>
+                                <Route path="/user" component={UserDetail}/>
                                 <AuthRoute path="/halls/add" component={HallAdd}/>
                                 <AuthRoute path="/halls/:id/edit" component={HallEdit}/>
                                 <Route path="/halls/:id" component={HallDetail}/>
@@ -35,7 +40,7 @@ class App extends Component {
                                 <AuthRoute path="/movies/:id/edit" component={MovieEdit}/>
                                 {/* :id обозначает переменную id */}
                                 <Route path="/movies/:id" component={MovieDetail}/>
-                                <Route path="/" component={MovieList}/>
+                                <Route path="/" component={MovieList} exact/>
                             </Switch>
                         </div>
                     </Layout>
