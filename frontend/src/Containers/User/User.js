@@ -59,14 +59,21 @@ class UserDetail extends Component {
         const {user, alert} = this.state;
 
         return <Fragment>
+            <div className="card text-center mb-3 text-white bg-secondary">
+                <div className="card-header">
+                    <h1>Имя пользователя : {username}</h1>
+                </div>
+                <div className="card-body">
+                    {first_name ? <p>Имя: {first_name}</p> : null}
 
-            <h1>Имя пользователя : {username}</h1>
+                    {last_name ? <p>Фамилия: {last_name}</p> : null}
+                </div>
+                <div className="card-footer text-white">
+                    {email ? <p>Email : {email}</p>: null}
+                </div>
+            </div>
 
-            {first_name ? <p>Имя: {first_name}</p> : null}
-
-            {last_name ? <p>Фамилия: {last_name}</p> : null}
-
-            {email ? <p>email: {email}</p>: null}
+            <h4 className="text-center">Редактирование пользователя</h4>
 
             {user ? <UserForm onSubmit={this.formSubmitted} user={user} alert={alert}/>: null}
         </Fragment>;
