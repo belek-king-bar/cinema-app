@@ -1,7 +1,6 @@
 from django.urls import include, path
 from rest_framework import routers
 from api_v1 import views
-from rest_framework.authtoken.views import obtain_auth_token
 
 
 router = routers.DefaultRouter()
@@ -19,11 +18,10 @@ app_name = 'api_v1'
 
 urlpatterns = [
     path('', include(router.urls)),
-    path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
-    path('register/', views.UserCreateView.as_view(), name='register')
-]
-
-urlpatterns += [
-   path('login/', obtain_auth_token, name='api_token_auth')
+    path('login/', views.LoginView.as_view(), name='api_token_auth'),
+    path('register/', views.UserCreateView.as_view(), name='register'),
+    # новая точка входа, куда можно прислать POST-запрос с токеном для активации нового пользователя
+    path('register/activate/', views.UserActivateView.as_view(), name='register_activate'),
+    path('register/update/<int:pk>/', views.UserUpdateView.as_view(), name='update')
 ]
 

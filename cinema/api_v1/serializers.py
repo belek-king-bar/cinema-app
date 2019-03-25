@@ -1,21 +1,8 @@
-from webapp.models import Movie, Hall, Show, Seat, Category, Sale, Ticket, Booking
+from rest_framework.exceptions import ValidationError
+from webapp.models import Movie, Hall, Show, Seat, Category, Sale, Ticket, Booking, RegistrationToken
 from rest_framework import serializers
 from django.contrib.auth.models import User
 
-
-class UserSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True)
-
-    def create(self, validated_data):
-        password = validated_data.pop('password')
-        user = User.objects.create(**validated_data)
-        user.set_password(password)
-        user.save()
-        return user
-
-    class Meta:
-        model = User
-        fields = ('id', 'username', 'password')
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -121,3 +108,56 @@ class BookingSerializer(serializers.ModelSerializer):
     class Meta:
         model = Booking
         fields = ('url', 'id', 'code', 'show', 'show_url', 'seat', 'status', 'created_at', 'updated_at')
+
+
+class UserSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True)
+
+    # чтобы email был обязательным
+    email = serializers.EmailField(required=True)
+
+    def create(self, validated_data):
+        password = validated_data.pop('password')
+        user = User.objects.create(**validated_data)
+        user.set_password(password)
+        # чтобы новый пользователь был неактивным
+        user.is_active = False
+        user.save()
+        return user
+
+    def update(self, instance, validated_data):
+        instance.email = validated_data.get('email', instance.email)
+        instance.first_name = validated_data.get('first_name', instance.first_name)
+        instance.last_name = validated_data.get('last_name', instance.last_name)
+        if validated_data.get('password'):
+            password = validated_data.pop('password')
+            instance.set_password(password)
+        instance.save()
+        return instance
+
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'password', 'email', 'last_name', 'first_name']
+
+
+# сериализатор для формы отправки токена,
+# принимает токен и проверяет, что он - uuid.
+# т.к. не нужен для создания/обновления/получения списка и т.д.
+# не связываем его с моделью, а используем базовый Serializer с одним полем.
+class RegistrationTokenSerializer(serializers.Serializer):
+    token = serializers.UUIDField(write_only=True)
+
+    # валидация поля token.
+    # теперь проверки на существование и срок действия токена
+    # выполняются здесь вместо представления UserActivateView.
+    # метод называется validate_token, потому что сериализаторы DRF для
+    # дополнительной валидации своих полей ищут методы с именами вида
+    # validate_field, где field - имя этого поля в сериализаторе.
+    def validate_token(self, token_value):
+        try:
+            token = RegistrationToken.objects.get(token=token_value)
+            if token.is_expired():
+                raise ValidationError("Token expired")
+            return token
+        except RegistrationToken.DoesNotExist:
+            raise ValidationError("Token does not exist or already used")
