@@ -61,6 +61,7 @@ class MovieDetail extends Component {
     };
 
     render() {
+        let isAdmin = localStorage.getItem('is_admin');
         // если movie в state нет, ничего не рисуем.
         if (!this.state.movie) return null;
 
@@ -84,7 +85,8 @@ class MovieDetail extends Component {
             <p className="text-secondary">В прокате c: {release_date} до: {finish_date ? finish_date : "Неизвестно"}</p>
             {description ? <p>{description}</p> : null}
 
-            <NavLink to={'/movies/' + id + '/edit'} className="btn btn-primary mr-2">Edit</NavLink>
+            {isAdmin==='true' ? <NavLink to={'/movies/' + id + '/edit'} className="btn btn-primary mr-2">Edit</NavLink>
+                : null}
 
             {/* назад */}
             <NavLink to='' className="btn btn-primary">Movies</NavLink>

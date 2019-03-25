@@ -61,6 +61,7 @@ class HallDetail extends Component {
     };
 
     render() {
+        let isAdmin = localStorage.getItem('is_admin');
         // если movie в state нет, ничего не рисуем.
         if (!this.state.hall) return null;
 
@@ -77,7 +78,8 @@ class HallDetail extends Component {
 
             )}
 
-            <NavLink to={'/halls/' + this.state.hall.id + '/edit'} className="btn btn-primary mr-2">Edit</NavLink>
+            {isAdmin==='true' ? <NavLink to={'/halls/' + this.state.hall.id + '/edit'} className="btn btn-primary mr-2">Edit</NavLink>
+                : null}
 
             {/* назад */}
             <NavLink to='/halls' className="btn btn-primary">Halls</NavLink>
