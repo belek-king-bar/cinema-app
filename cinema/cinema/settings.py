@@ -143,3 +143,20 @@ REST_FRAMEWORK = {
 }
 
 
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_DEFAULT_FROM = "admin@cinema.app"
+HOST_URL = "http://localhost:3000"
+
+# срок действия токена регистрации
+TOKEN_EXPIRATION_HOURS = 72
+
+# файл содержит настройки EMAIL_HOST, EMAIL_HOST_USERNAME, EMAIL_HOST_PASSWORD, EMAIL_PORT
+# и может содержать другие настройки проекта, особые для вашего локального(!) окружения проекта.
+# чтобы проект заработал, создайте файл settings_local.py рядом с файлом settings.py
+# и пропишите в нём следующие настройки:
+# EMAIL_HOST = 'smtp.mailtrap.io'
+# EMAIL_HOST_USER = ''  # возьмите значение из настроек вашего почтового ящика в mailtrap
+# EMAIL_HOST_PASSWORD = ''  # возьмите значение из настроек вашего почтового ящика в mailtrap
+# EMAIL_PORT = '2525'
+
+from .settings_local import *
