@@ -8,6 +8,8 @@ import {NavLink} from 'react-router-dom'
 // если данные для какой-то части карточки не переданы и она выводится пустая.
 // props.className позволяет принимать дополнительные классы для карточки по нуждам использующего компонента.
 const Card = props => {
+    let isAdmin = localStorage.getItem('is_admin');
+    console.log(isAdmin);
     return <div className={"card mt-3 text-center text-sm-left " + (props.className ? props.className : "")}>
         {props.image ? <img className="card-img-top" src={props.image}/> : null}
         {props.header || props.text || props.link ? <div className="card-body">
@@ -18,7 +20,8 @@ const Card = props => {
             {props.link ? <NavLink to={props.link.url} className="btn btn-primary">
                 {props.link.text}
             </NavLink> : null}
-            <button type="button" className="ml-2 btn btn-warning" onClick={props.onDelete}>Delete</button>
+            {isAdmin==='true' ? <button type="button" className="ml-2 btn btn-warning" onClick={props.onDelete}>Delete</button>
+                : null}
         </div> : null}
     </div>
 };
