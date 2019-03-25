@@ -1164,6 +1164,54 @@
   }
 },
 {
+  "model": "auth.permission",
+  "pk": 61,
+  "fields": {
+    "name": "Can add registration token",
+    "content_type": [
+      "webapp",
+      "registrationtoken"
+    ],
+    "codename": "add_registrationtoken"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 62,
+  "fields": {
+    "name": "Can change registration token",
+    "content_type": [
+      "webapp",
+      "registrationtoken"
+    ],
+    "codename": "change_registrationtoken"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 63,
+  "fields": {
+    "name": "Can delete registration token",
+    "content_type": [
+      "webapp",
+      "registrationtoken"
+    ],
+    "codename": "delete_registrationtoken"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 64,
+  "fields": {
+    "name": "Can view registration token",
+    "content_type": [
+      "webapp",
+      "registrationtoken"
+    ],
+    "codename": "view_registrationtoken"
+  }
+},
+{
   "model": "auth.user",
   "pk": 1,
   "fields": {
@@ -1183,18 +1231,18 @@
 },
 {
   "model": "auth.user",
-  "pk": 2,
+  "pk": 10,
   "fields": {
-    "password": "pbkdf2_sha256$120000$wvawWQy9vf9E$GiVW82yYyflnbhWppUftJpAxjntHdLH7MIUkMUgWb4g=",
+    "password": "pbkdf2_sha256$120000$qT62kIy86af3$u4OXeZJoRO5ExZGniZQU+gUqG0TNP8iDuzGEuv92qPA=",
     "last_login": null,
     "is_superuser": false,
     "username": "belek",
-    "first_name": "",
-    "last_name": "",
-    "email": "",
+    "first_name": "\u0411\u0435\u043b\u0435\u043a",
+    "last_name": "\u0422\u043e\u043b\u0443\u0431\u0430\u0435\u0432",
+    "email": "belektolubaev@gmail.com",
     "is_staff": false,
     "is_active": true,
-    "date_joined": "2019-03-18T13:56:29Z",
+    "date_joined": "2019-03-25T12:00:21.190Z",
     "groups": [],
     "user_permissions": []
   }
