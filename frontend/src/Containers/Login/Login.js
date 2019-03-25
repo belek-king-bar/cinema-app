@@ -20,8 +20,9 @@ class Login extends Component {
             localStorage.setItem('auth-token', response.data.token);
             localStorage.setItem('username', response.data.username);
             localStorage.setItem('email', response.data.email);
-            localStorage.setItem('firstname', response.data.firstname);
-            localStorage.setItem('lastname', response.data.lastname);
+            localStorage.setItem('first_name', response.data.first_name);
+            console.log(localStorage.getItem('first_name'));
+            localStorage.setItem('last_name', response.data.last_name);
             localStorage.setItem('is_admin', response.data.is_admin);
             localStorage.setItem('is_staff', response.data.is_staff);
             localStorage.setItem('id', response.data.id);

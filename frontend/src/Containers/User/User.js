@@ -8,23 +8,23 @@ class UserDetail extends Component {
 
     state = {
         user: {
-            username: "",
             first_name: "",
             last_name: "",
-            email: ""
+            email: "",
+            password: "",
+            passwordConfirm: ""
         },
 
         alert: []
     };
 
     componentDidMount() {
-        let username = localStorage.getItem('username');
         let first_name = localStorage.getItem('first_name');
+        console.log(first_name);
         let last_name = localStorage.getItem('last_name');
         let email = localStorage.getItem('email');
         this.setState(prevState => {
                 let newState = {...prevState};
-                newState.user.username = username;
                 newState.user.first_name = first_name;
                 newState.user.last_name = last_name;
                 newState.user.email = email;
@@ -54,7 +54,8 @@ class UserDetail extends Component {
 
 
     render() {
-        const {username, first_name, last_name, email} = this.state.user;
+        const {first_name, last_name, email} = this.state.user;
+        let username = localStorage.getItem('username');
         const {user, alert} = this.state;
 
         return <Fragment>
