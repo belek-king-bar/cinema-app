@@ -218,3 +218,13 @@ class RegistrationTokenSerializer(serializers.Serializer):
             return token
         except RegistrationToken.DoesNotExist:
             raise ValidationError("Token does not exist or already used")
+
+
+class AuthTokenSerializer(serializers.Serializer):
+    token = serializers.CharField(write_only=True)
+
+    def validate_token(self, token):
+        try:
+            return Token.objects.get(key=token)
+        except Token.DoesNotExist:
+            raise ValidationError("Invalid credentials")

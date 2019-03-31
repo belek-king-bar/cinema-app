@@ -3,11 +3,12 @@ from webapp.models import Movie, Category, Hall, Seat, Show, Sale, Ticket, Booki
 from rest_framework import viewsets, status
 from api_v1.serializers import MovieDisplaySerializer, MovieCreateSerializer, HallSerializer, \
     CategorySerializer, SeatSerializer, ShowSerializer, SaleSerializer, \
-    TicketSerializer, BookingSerializer, UserSerializer, RegistrationTokenSerializer, UserRegisterSerializer
-from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
-from rest_framework.generics import CreateAPIView, GenericAPIView, UpdateAPIView
+    TicketSerializer, BookingSerializer, UserSerializer, RegistrationTokenSerializer, UserRegisterSerializer, \
+    AuthTokenSerializer
+from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.generics import CreateAPIView, GenericAPIView
 from django.contrib.auth.models import User
-from rest_framework.authtoken.views import ObtainAuthToken
+from rest_framework.authtoken.views import ObtainAuthToken, APIView
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 
@@ -22,6 +23,23 @@ class LoginView(ObtainAuthToken):
             'token': token.key,
             'username': user.username,
             'id': user.id,
+            'is_admin': user.is_superuser,
+            'is_staff': user.is_staff
+        })
+
+
+class TokenLoginView(APIView):
+    serializer_class = AuthTokenSerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data, context={'request': request})
+        serializer.is_valid(raise_exception=True)
+        token = serializer.validated_data['token']
+        user = token.user
+        return Response({
+            'token': token.key,
+            'user_id': user.id,
+            'username': user.username,
             'is_admin': user.is_superuser,
             'is_staff': user.is_staff
         })
