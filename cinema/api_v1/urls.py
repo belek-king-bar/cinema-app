@@ -12,6 +12,7 @@ router.register(r'halls', views.HallViewSet)
 router.register(r'sales', views.SaleViewSet)
 router.register(r'tickets', views.TicketViewSet)
 router.register(r'bookings', views.BookingViewSet)
+router.register(r'users', views.UserViewSet)
 
 
 app_name = 'api_v1'
@@ -21,7 +22,6 @@ urlpatterns = [
     path('login/', views.LoginView.as_view(), name='api_token_auth'),
     path('register/', views.UserCreateView.as_view(), name='register'),
     # новая точка входа, куда можно прислать POST-запрос с токеном для активации нового пользователя
-    path('register/activate/', views.UserActivateView.as_view(), name='register_activate'),
-    path('register/update/<int:pk>/', views.UserUpdateView.as_view(), name='update')
+    path('register/activate/', views.UserActivateView.as_view(), name='register_activate')
 ]
 

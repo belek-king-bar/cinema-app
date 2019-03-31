@@ -30,7 +30,7 @@ class Menu extends Component {
                 </ul>
                 <ul className="navbar-nav ml-auto">
                     {username ? [
-                        <li className="nav-item" key="username"><span className="navbar-text">Привет, <NavLink to="/user">{username}</NavLink>!</span></li>,
+                        <li className="nav-item" key="username"><span className="navbar-text">Привет, <NavLink to={"/users/" + localStorage.getItem('id')}>{username}</NavLink>!</span></li>,
                         <MenuItem to="/logout" key="logout">Выйти</MenuItem>
                     ] : [
                         <MenuItem to="/login" key="login">Войти</MenuItem>,

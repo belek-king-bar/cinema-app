@@ -1,8 +1,9 @@
 from django.conf import settings
 from webapp.models import Movie, Category, Hall, Seat, Show, Sale, Ticket, Booking, RegistrationToken
 from rest_framework import viewsets, status
-from api_v1.serializers import MovieDisplaySerializer, MovieCreateSerializer, HallSerializer, CategorySerializer, SeatSerializer, ShowSerializer, SaleSerializer, \
-    TicketSerializer, BookingSerializer, UserSerializer, RegistrationTokenSerializer
+from api_v1.serializers import MovieDisplaySerializer, MovieCreateSerializer, HallSerializer, \
+    CategorySerializer, SeatSerializer, ShowSerializer, SaleSerializer, \
+    TicketSerializer, BookingSerializer, UserSerializer, RegistrationTokenSerializer, UserRegisterSerializer
 from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
 from rest_framework.generics import CreateAPIView, GenericAPIView, UpdateAPIView
 from django.contrib.auth.models import User
@@ -20,9 +21,6 @@ class LoginView(ObtainAuthToken):
         return Response({
             'token': token.key,
             'username': user.username,
-            'first_name': user.first_name,
-            'last_name': user.last_name,
-            'email': user.email,
             'id': user.id,
             'is_admin': user.is_superuser,
             'is_staff': user.is_staff
@@ -118,16 +116,9 @@ class BookingViewSet(BaseViewSet):
     serializer_class = BookingSerializer
 
 
-class UserUpdateView(UpdateAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-    permission_classes = [IsAuthenticated]
-
-
-
 class UserCreateView(CreateAPIView):
     model = User
-    serializer_class = UserSerializer
+    serializer_class = UserRegisterSerializer
     permission_classes = [AllowAny]
 
     # perform_create - встроенный метод CreateAPIView,
@@ -171,15 +162,12 @@ class UserActivateView(GenericAPIView):
         return Response({
             'token': auth_token.key,
             'username': user.username,
-            'first_name': user.first_name,
-            'last_name': user.last_name,
-            'email': user.email,
-            'id': user.id,
             'is_admin': user.is_superuser,
             'is_staff': user.is_staff
         })
 
     # за активацию пользователя и удаление токена отвечает этот метод
+    # (такого метода в view-set'ах нет, я его сам написал и выбрал название).
     def perform_user_activation(self, serializer):
         token = serializer.validated_data.get('token')
         user = token.user
@@ -188,3 +176,22 @@ class UserActivateView(GenericAPIView):
         token.delete()
         return user
 
+
+class UserViewSet(BaseViewSet):
+    serializer_class = UserSerializer
+    queryset = User.objects.all()
+
+    def get_permissions(self):
+        permissions = super().get_permissions()
+        if self.request.method in ["POST", "DELETE", "PUT", "PATCH"]:
+            permissions.append(IsAuthenticated())
+        return permissions
+
+    # Метод, который проверяет права доступа к объекту - запрошенному ресурсу
+    def check_object_permissions(self, request, obj):
+        super().check_object_permissions(request, obj)
+        # если метод запроса связан с редактированием или удалением
+        # и объект - это не текущий пользователь (т.е. пользователь пытается
+        # редактировать чужую страницу) то запрещаем доступ.
+        if request.method in ['PUT', 'PATCH', 'DELETE'] and obj != request.user:
+            self.permission_denied(request, 'Can not edit other users data!')

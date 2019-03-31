@@ -2,6 +2,7 @@ from rest_framework.exceptions import ValidationError
 from webapp.models import Movie, Hall, Show, Seat, Category, Sale, Ticket, Booking, RegistrationToken
 from rest_framework import serializers
 from django.contrib.auth.models import User
+from django.contrib.auth import authenticate
 
 
 
@@ -110,34 +111,90 @@ class BookingSerializer(serializers.ModelSerializer):
         fields = ('url', 'id', 'code', 'show', 'show_url', 'seat', 'status', 'created_at', 'updated_at')
 
 
-class UserSerializer(serializers.ModelSerializer):
+class UserRegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
+    password_confirm = serializers.CharField(write_only=True)
 
     # чтобы email был обязательным
     email = serializers.EmailField(required=True)
 
+    # общая валидация между разными полями может происходить в методе validate
+    # attrs - словарь со всеми данными для модели, уже проверенными по отдельности.
+    # ошибки из этого метода попадают в non_field_errors.
+    def validate(self, attrs):
+        if attrs.get('password') != attrs.get('password_confirm'):
+            raise ValidationError("Passwords do not match")
+        return super().validate(attrs)
+
     def create(self, validated_data):
+        # удаляем подтверждение пароля из списка атрибутов
+        validated_data.pop('password_confirm')
+        # удаляем пароль из списка атрибутов и запоминаем его
         password = validated_data.pop('password')
-        user = User.objects.create(**validated_data)
+        # создаём пользователя со всеми оставшимися данными
+        user = super().create(validated_data)
+        # выставляем пароль для пользователя
         user.set_password(password)
         # чтобы новый пользователь был неактивным
         user.is_active = False
         user.save()
         return user
 
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'password', 'password_confirm', 'email']
+
+
+class UserSerializer(serializers.ModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='api_v1:user-detail')
+    # имя пользователя нельзя менять.
+    username = serializers.CharField(read_only=True)
+    # пароль нельзя смотреть.
+    # поле пароль здесь нужно для проверки, что пользователь - тот, за кого себя выдаёт,
+    # при редактировании остальных данных.
+    password = serializers.CharField(write_only=True)
+    # новый пароль и его подтверждение - только для записи, необязательные
+    # на случай, если пользователь не хочет менять пароль.
+    new_password = serializers.CharField(write_only=True, required=False, allow_blank=True)
+    new_password_confirm = serializers.CharField(write_only=True, required=False, allow_blank=True)
+    email = serializers.EmailField(required=True, allow_blank=False)
+
+    # метод для валидации поля "Пароль"
+    # value - это пароль
+    def validate_password(self, value):
+        user = self.context['request'].user
+        if not authenticate(username=user.username, password=value):
+            raise ValidationError('Invalid password for your account')
+        return value
+
+    def validate(self, attrs):
+        if attrs.get('new_password') != attrs.get('new_password_confirm'):
+            raise ValidationError("Passwords do not match")
+        return super().validate(attrs)
+
+    # user - это instance
     def update(self, instance, validated_data):
-        instance.email = validated_data.get('email', instance.email)
-        instance.first_name = validated_data.get('first_name', instance.first_name)
-        instance.last_name = validated_data.get('last_name', instance.last_name)
-        if validated_data.get('password'):
-            password = validated_data.pop('password')
-            instance.set_password(password)
+        # удаляем старый пароль из списка атрибутов
+        validated_data.pop('password')
+        # удаляем новый пароль из списка атрибутов и запоминаем его
+        new_password = validated_data.pop('new_password')
+        # удаляем подтверждение пароля из списка атрибутов
+        validated_data.pop('new_password_confirm')
+
+        # обновляем пользователя всеми оставшимися данными
+        instance = super().update(instance, validated_data)
+
+        # меняем пароль при необходимости
+        if new_password:
+            instance.set_password(new_password)
         instance.save()
         return instance
 
     class Meta:
         model = User
-        fields = ['id', 'username', 'password', 'email', 'last_name', 'first_name']
+        fields = ['url', 'id', 'username', 'first_name', 'last_name', 'email',
+                  'password', 'new_password', 'new_password_confirm']
+
 
 
 # сериализатор для формы отправки токена,

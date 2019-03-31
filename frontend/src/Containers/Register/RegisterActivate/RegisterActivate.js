@@ -1,4 +1,4 @@
-import React, {Component, Fragment} from 'react';
+import React, {Component, Fragment} from 'react'
 import {REGISTER_ACTIVATE_URL} from "../../../api-urls";
 import axios from 'axios';
 
@@ -23,13 +23,9 @@ class RegisterActivate extends Component {
                 // все необходимые данные, включая токен авторизации.
                 localStorage.setItem('auth-token', response.data.token);
                 localStorage.setItem('username', response.data.username);
-                console.log(response.data.first_name);
-                localStorage.setItem('email', response.data.email);
-                localStorage.setItem('first_name', response.data.first_name);
-                localStorage.setItem('last_name', response.data.last_name);
+                localStorage.setItem('id', response.data.id);
                 localStorage.setItem('is_admin', response.data.is_admin);
                 localStorage.setItem('is_staff', response.data.is_staff);
-                localStorage.setItem('id', response.data.id);
                 this.props.history.replace('/');
             }).catch(error => {
                 // иначе выводим ошибку.
@@ -62,4 +58,4 @@ class RegisterActivate extends Component {
 }
 
 
-export default RegisterActivate
+export default RegisterActivate;

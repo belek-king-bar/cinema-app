@@ -1,81 +1,74 @@
-import React, {Component, Fragment} from 'react'
-import axios from "axios";
-import {REGISTER_UPDATE_URL} from "../../api-urls";
-import UserForm from '../../Components/UserForm/UserForm'
-
+import React, {Component, Fragment} from 'react';
+import axios from 'axios';
+import {USERS_URL} from "../../api-urls";
+import UserForm from "../../Components/UserForm/UserForm";
 
 class UserDetail extends Component {
-
     state = {
-        user: {
-            first_name: "",
-            last_name: "",
-            email: "",
-            password: "",
-            passwordConfirm: ""
-        },
-
-        alert: []
+        user: {},
+        edit: false,
+        alert: null
     };
 
     componentDidMount() {
-        let first_name = localStorage.getItem('first_name');
-        console.log(first_name);
-        let last_name = localStorage.getItem('last_name');
-        let email = localStorage.getItem('email');
-        this.setState(prevState => {
-                let newState = {...prevState};
-                newState.user.first_name = first_name;
-                newState.user.last_name = last_name;
-                newState.user.email = email;
-                return newState;
-            })
-    }
-
-
-    formSubmitted = (data) => {
-        let id = localStorage.getItem('id');
-        return axios.patch(REGISTER_UPDATE_URL + id + '/', data, {headers: {
-                Authorization: "Token " + localStorage.getItem('auth-token')
-            }}).then(response => {
-                console.log(response);
-                if (response.status === 200) {
-                    this.setState(prevState => {
-                    let newState = {...prevState};
-                    newState.alert = ["Обновлено"];
-                    return newState;
-                });
-                }
-            }).catch(error => {
+        const userId = this.props.match.params.id;
+        axios.get(USERS_URL + userId).then(response => {
+            console.log(response);
+            this.setState(prevState => {
+                return {...prevState, user: response.data};
+            });
+        }).catch(error => {
             console.log(error);
             console.log(error.response);
+        })
+    }
+
+    onUserUpdate = (user) => {
+        this.setState(prevState => {
+            return {
+                ...prevState,
+                user,
+                edit: false,
+                alert: {type: 'success', text: 'Данные пользователя успешно обновлены!'}
+            };
         });
     };
 
+    toggleEdit = () => {
+        this.setState(prevState => {
+            return {
+                ...prevState,
+                edit: !prevState.edit,
+                alert: null
+            };
+        });
+    };
 
     render() {
-        const {first_name, last_name, email} = this.state.user;
-        let username = localStorage.getItem('username');
-        const {user, alert} = this.state;
-
+        // не забываем конвертировать user_id из localStorage в int для сравнения
+        // (по умолчанию всё из localStorage считывается, как строка).
+        const currentUserId = parseInt(localStorage.getItem('id'));
+        const {username, first_name, last_name, email} = this.state.user;
+        const alert = this.state.alert;
         return <Fragment>
-            <div className="card text-center mb-3 text-white bg-secondary">
-                <div className="card-header">
-                    <h1>Имя пользователя : {username}</h1>
-                </div>
-                <div className="card-body">
-                    {first_name ? <p>Имя: {first_name}</p> : null}
+            {alert ? <div className={"alert mt-3 py-2 alert-" + alert.type} role="alert">{alert.text}</div> : null}
+            <h1 className="mt-3">Личный кабинет</h1>
+            {username ? <p>Имя пользователя: {username}</p> : null}
+            {first_name ? <p>Имя: {first_name}</p> : null}
+            {last_name ? <p>Фамиилия: {last_name}</p> : null}
+            {email ? <p>Email: {email}</p> : null}
 
-                    {last_name ? <p>Фамилия: {last_name}</p> : null}
+            {/* весь блок формы выходит только если страница принадлежит текущему пользователю */}
+            {/* и данные пользователя (откуда берётся id для сравнения) загрузились. */}
+            {currentUserId === this.state.user.id ? <Fragment>
+                <div className="my-4">
+                    <button className="btn btn-primary" type="button" onClick={this.toggleEdit}>Редактировать</button>
+                    <div className={this.state.edit ? "mt-4" : "mt-4 collapse"}>
+                        <h2>Редактировать</h2>
+                        <UserForm user={this.state.user} onUpdateSuccess={this.onUserUpdate}/>
+                    </div>
                 </div>
-                <div className="card-footer text-white">
-                    {email ? <p>Email : {email}</p>: null}
-                </div>
-            </div>
-
-            <h4 className="text-center">Редактирование пользователя</h4>
-
-            {user ? <UserForm onSubmit={this.formSubmitted} user={user} alert={alert}/>: null}
+            </Fragment> : null}
         </Fragment>;
     }
 }

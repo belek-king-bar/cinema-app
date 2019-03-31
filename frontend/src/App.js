@@ -31,7 +31,7 @@ class App extends Component {
                                 <Route path="/register" component={Register} exact/>
                                 <Route path="/register/activate" component={RegisterActivate}/>
                                 <Route path="/register" component={Register}/>
-                                <Route path="/user" component={UserDetail}/>
+                                <AuthRoute path="/users/:id" component={UserDetail}/>
                                 <AuthRoute path="/halls/add" component={HallAdd}/>
                                 <AuthRoute path="/halls/:id/edit" component={HallEdit}/>
                                 <Route path="/halls/:id" component={HallDetail}/>
