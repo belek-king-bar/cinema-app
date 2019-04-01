@@ -38,7 +38,7 @@ class TokenLoginView(APIView):
         user = token.user
         return Response({
             'token': token.key,
-            'user_id': user.id,
+            'id': user.id,
             'username': user.username,
             'is_admin': user.is_superuser,
             'is_staff': user.is_staff
