@@ -15,8 +15,10 @@
     "react-scripts": "2.1.8",
     "react-select": "^2.4.1",
     "react-selected": "^1.0.1",
+    "react-thunk": "^1.0.0",
     "reactstrap": "^7.1.0",
-    "redux": "^4.0.1"
+    "redux": "^4.0.1",
+    "redux-thunk": "^2.3.0"
   },
   "scripts": {
     "start": "react-scripts start",

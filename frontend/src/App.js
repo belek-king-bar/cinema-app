@@ -16,10 +16,17 @@ import Logout from './Containers/Logout/Logout';
 import AuthRoute from "./Components/AuthRoute/AuthRoute";
 import Register from "./Containers/Register/Register";
 import RegisterActivate from "./Containers/Register/RegisterActivate/RegisterActivate";
-import UserDetail from './Containers/User/User'
+import UserDetail from './Containers/User/User';
+import {tokenLogin} from "./store/actions/token-login";
+import {connect} from "react-redux";
 
 
 class App extends Component {
+    componentDidMount() {
+        this.props.tokenLogin();
+    }
+
+
     render() {
         return (
                 <BrowserRouter>
@@ -49,4 +56,11 @@ class App extends Component {
     }
 }
 
-export default App;
+const mapStateToProps = state => state.app;
+const mapDispatchToProps = dispatch => ({
+    tokenLogin: () => dispatch(tokenLogin())
+});
+
+
+
+export default connect(mapStateToProps, mapDispatchToProps)(App);
