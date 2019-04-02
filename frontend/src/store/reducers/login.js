@@ -1,10 +1,9 @@
 import {LOGIN_ERROR, LOGIN_REQUEST, LOGIN_SUCCESS} from "../actions/login";
 
 const initialState = {
-    login: {
         loading: false,
         errors: {}
-}};
+};
 
 
 const loginreducer = (state = initialState, action) => {
