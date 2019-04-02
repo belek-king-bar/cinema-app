@@ -1,23 +1,18 @@
-import React, {Fragment, Component} from 'react';
-import {MOVIES_URL} from "../../api-urls";
+import React, {Fragment, Component} from 'react'
 import MovieCard from "../../Components/MovieCard/MovieCard";
-import {NavLink} from "react-router-dom";
-import axios from 'axios';
+import {loadMovies} from "../../store/actions/movie_list";
+import {connect} from "react-redux";
+import axios, {MOVIES_URL} from "../../api-urls"
 
 
 // компонент для показа списка фильмов клиенту
 // фильмы запрашиваются из API в момент показа компонента на странце (mount)
 class MovieList extends Component {
-    state = {
-        movies: [],
-    };
-
     componentDidMount() {
-        axios.get(MOVIES_URL)
-            .then(response => {console.log(response.data); return response.data;})
-            .then(movies => this.setState({movies}))
-            .catch(error => console.log(error));
+        this.props.loadMovies();
     }
+
+
 
     movieDeleted = (movieId) => {
         if(localStorage.getItem('auth-token')) {
@@ -50,7 +45,7 @@ class MovieList extends Component {
     render() {
         return <Fragment>
             <div className='row'>
-                {this.state.movies.map(movie => {
+                {this.props.movies.map(movie => {
                     return <div className='col-xs-12 col-sm-6 col-lg-4 mt-3'  key={movie.id}>
                         <MovieCard movie={movie} onDelete={() => this.movieDeleted(movie.id)}/>
                     </div>
@@ -60,5 +55,10 @@ class MovieList extends Component {
     }
 }
 
+const mapStateToProps = (state) => state.movieList;
+const mapDispatchToProps = (dispatch) => ({
+    loadMovies: () => dispatch(loadMovies())
+});
 
-export default MovieList;
+
+export default connect(mapStateToProps, mapDispatchToProps)(MovieList);
