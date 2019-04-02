@@ -4,6 +4,7 @@ import axios from 'axios';
 import {NavLink} from "react-router-dom";
 import moment from 'moment';
 import ShowSchedule from "../../Components/ShowSchedule/ShowSchedule";
+import connect from "react-redux/es/connect/connect";
 
 
 // компонент, который выводит одну карточку с фильмом
@@ -61,7 +62,7 @@ class HallDetail extends Component {
     };
 
     render() {
-        let isAdmin = localStorage.getItem('is_admin');
+        const {is_admin} = this.props.auth;
         // если movie в state нет, ничего не рисуем.
         if (!this.state.hall) return null;
 
@@ -78,7 +79,7 @@ class HallDetail extends Component {
 
             )}
 
-            {isAdmin==='true' ? <NavLink to={'/halls/' + this.state.hall.id + '/edit'} className="btn btn-primary mr-2">Edit</NavLink>
+            {is_admin ? <NavLink to={'/halls/' + this.state.hall.id + '/edit'} className="btn btn-primary mr-2">Edit</NavLink>
                 : null}
 
             {/* назад */}
@@ -90,5 +91,9 @@ class HallDetail extends Component {
     }
 }
 
+const mapStateToProps = state => ({auth: state.auth});
+// никаких дополнительных действий здесь не нужно
+const mapDispatchToProps = dispatch => ({});
 
-export default HallDetail;
+
+export default connect(mapStateToProps, mapDispatchToProps)(HallDetail);

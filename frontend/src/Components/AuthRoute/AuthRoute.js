@@ -6,6 +6,10 @@ import {connect} from "react-redux";
 
 
 const AuthRoute = (props) => {
+    console.log(props);
+    if (props.app.loading) {
+            return <p>Loading...</p>
+    }
     if(props.auth.id) {
         return <Route {...props} />
     } else {
@@ -18,7 +22,10 @@ const AuthRoute = (props) => {
 
 
 // вытаскиваем данные об аутентификации из state
-const mapStateToProps = state => ({auth: state.auth});
+const mapStateToProps = state => ({
+    auth: state.auth,
+    app: state.app
+});
 // никаких дополнительных действий здесь не нужно
 const mapDispatchToProps = dispatch => ({});
 

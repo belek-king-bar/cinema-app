@@ -5,6 +5,7 @@ import MovieCategories from "../../Components/MovieCategories/MovieCategories";
 import axios from 'axios';
 import moment from 'moment';
 import ShowSchedule from "../../Components/ShowSchedule/ShowSchedule";
+import connect from "react-redux/es/connect/connect";
 
 // компонент, который выводит одну карточку с фильмом
 // фильм также загружается при выводе компонента на экран (mount),
@@ -61,13 +62,12 @@ class MovieDetail extends Component {
     };
 
     render() {
-        let isAdmin = localStorage.getItem('is_admin');
         // если movie в state нет, ничего не рисуем.
         if (!this.state.movie) return null;
 
         // достаём данные из movie
         const {name, poster, description, release_date, finish_date, categories, id} = this.state.movie;
-        console.log(categories);
+        const {is_admin} = this.props.auth;
 
         return <div className="mb-4">
             {/* постер, если есть */}
@@ -85,7 +85,7 @@ class MovieDetail extends Component {
             <p className="text-secondary">В прокате c: {release_date} до: {finish_date ? finish_date : "Неизвестно"}</p>
             {description ? <p>{description}</p> : null}
 
-            {isAdmin==='true' ? <NavLink to={'/movies/' + id + '/edit'} className="btn btn-primary mr-2">Edit</NavLink>
+            {is_admin ? <NavLink to={'/movies/' + id + '/edit'} className="btn btn-primary mr-2">Edit</NavLink>
                 : null}
 
             {/* назад */}
@@ -97,5 +97,9 @@ class MovieDetail extends Component {
     }
 }
 
+const mapStateToProps = state => ({auth: state.auth});
+// никаких дополнительных действий здесь не нужно
+const mapDispatchToProps = dispatch => ({});
 
-export default MovieDetail;
+
+export default connect(mapStateToProps, mapDispatchToProps)(MovieDetail);
