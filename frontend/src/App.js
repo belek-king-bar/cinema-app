@@ -56,7 +56,9 @@ class App extends Component {
     }
 }
 
-const mapStateToProps = state => state.app;
+const mapStateToProps = state => ({
+    app: state.app,
+});
 const mapDispatchToProps = dispatch => ({
     tokenLogin: () => dispatch(tokenLogin())
 });

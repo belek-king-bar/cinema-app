@@ -1,38 +1,30 @@
 import React, {Component, Fragment} from 'react'
-import {REGISTER_ACTIVATE_URL} from "../../../api-urls";
-import axios from 'axios';
-
+import {register_activate, REGISTER_ACTIVATE_SUCCESS} from '../../../store/actions/register_activate'
+import {connect} from "react-redux";
 
 class RegisterActivate extends Component {
     state = {
-        error: null
-        // вывод сообщения об успешной активации больше не нужен,
-        // т.к. после активации API сразу авторизует пользователя
-        // и UI перекидывает его на главную страницу.
+
+    };
+
+    redirect = () => {
+        const {location, history} = this.props;
+        if (location.state) {
+            history.replace('/');
+        } else {
+            history.goBack();
+        }
     };
 
     componentDidMount() {
         // Чтобы достать токен из строки запроса, нужно её распарсить в объект URLSearchParams.
         const urlParams = new URLSearchParams(this.props.location.search);
         // Запрос делается только если токен есть.
-        if(urlParams.has('token')) {
+        if (urlParams.has('token')) {
             const data = {token: urlParams.get('token')};
-            axios.post(REGISTER_ACTIVATE_URL, data).then(response => {
-                console.log(response);
-                // теперь при успешном запросе API сразу присылает в UI
-                // все необходимые данные, включая токен авторизации.
-                localStorage.setItem('auth-token', response.data.token);
-                localStorage.setItem('username', response.data.username);
-                localStorage.setItem('id', response.data.id);
-                localStorage.setItem('is_admin', response.data.is_admin);
-                localStorage.setItem('is_staff', response.data.is_staff);
-                this.props.history.replace('/');
-            }).catch(error => {
-                // иначе выводим ошибку.
-                console.log(error);
-                console.log(error.response);
-                this.setState({error: error.response.data.token[0], success: null});
-            })
+            this.props.register_activate(data).then((result) => {
+                if (result.type === REGISTER_ACTIVATE_SUCCESS) this.redirect();
+            });
         }
     }
 
@@ -57,5 +49,11 @@ class RegisterActivate extends Component {
     }
 }
 
+const mapStateToProps = state => state.register_activate;
 
-export default RegisterActivate;
+const mapDispatchToProps = dispatch => ({
+    register_activate: (data) => dispatch(register_activate(data))
+});
+
+
+export default connect(mapStateToProps, mapDispatchToProps)(RegisterActivate);

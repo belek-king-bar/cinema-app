@@ -1,6 +1,6 @@
 import React, {Component, Fragment} from 'react';
-import {REGISTER_URL} from "../../api-urls";
-import axios from 'axios';
+import {register, REGISTER_SUCCESS} from '../../store/actions/register'
+import {connect} from "react-redux";
 
 
 class Register extends Component {
@@ -11,25 +11,28 @@ class Register extends Component {
             password_confirm: "",
             email: "",
         },
-        errors: {}
+    };
+
+    redirect = () => {
+        const {location, history} = this.props;
+        if (location.state) {
+            history.replace('/register/activate');
+        } else {
+            history.goBack();
+        }
     };
 
     formSubmitted = (event) => {
         event.preventDefault();
-        // теперь повторный пароль пользователя проверяется со стороны API,
-        // и запрос можно отправить в любом случае, а также не нужно удалять
-        // поле password_confirm из данных.
-        return axios.post(REGISTER_URL, this.state.user).then(response => {
-            console.log(response);
-            // теперь вместо автовхода следует перекинуть пользователя на страницу активации
-            this.props.history.replace('/register/activate');
-        }).catch(error => {
-            console.log(error);
-            console.log(error.response);
-            this.setState({
-                ...this.state,
-                errors: error.response.data
-            })
+        const {username, password, password_confirm, email} = this.state.user;
+        // один из вариантов редиректа - вернуть результат запроса
+        // из action-creator'а login(). Результатом будет action, обёрнутый в Promise,
+        // поэтому у него можно вызвать метод then, в котором проверить тип action'а,
+        // и если вход успешен (тип action'а - LOGIN_SUCCESS),
+        // то перенаправить пользователя на другую страницу.
+        // смотрите также комментарий к login() в actions/login.js.
+        this.props.register(username, password, password_confirm, email).then((result) => {
+            if(result.type === REGISTER_SUCCESS) this.redirect();
         });
     };
 
@@ -44,8 +47,8 @@ class Register extends Component {
     };
 
     showErrors = (name) => {
-        if (this.state.errors && this.state.errors[name]) {
-            return this.state.errors[name].map((error, index) => <p className="text-danger" key={index}>{error}</p>);
+        if (this.props.errors && this.props.errors[name]) {
+            return this.props.errors[name].map((error, index) => <p className="text-danger" key={index}>{error}</p>);
         }
         return null;
     };
@@ -89,5 +92,12 @@ class Register extends Component {
     }
 }
 
+const mapStateToProps = state => state.register;
 
-export default Register;
+const mapDispatchToProps = dispatch => ({
+    register: (username, password, password_confirm, email) => dispatch(register(username, password, password_confirm,
+        email))
+});
+
+
+export default connect(mapStateToProps, mapDispatchToProps)(Register);
