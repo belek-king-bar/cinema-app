@@ -1,26 +1,16 @@
 import React, {Component, Fragment} from 'react';
-import axios from 'axios';
-import {USERS_URL} from "../../api-urls";
 import UserForm from "../../Components/UserForm/UserForm";
+import {loadUser} from "../../store/actions/user_detail";
+import {connect} from "react-redux"
 
 class UserDetail extends Component {
     state = {
-        user: {},
         edit: false,
         alert: null
     };
 
     componentDidMount() {
-        const userId = this.props.match.params.id;
-        axios.get(USERS_URL + userId).then(response => {
-            console.log(response);
-            this.setState(prevState => {
-                return {...prevState, user: response.data};
-            });
-        }).catch(error => {
-            console.log(error);
-            console.log(error.response);
-        })
+        this.props.loadUser(this.props.match.params.id)
     }
 
     onUserUpdate = (user) => {
@@ -47,8 +37,9 @@ class UserDetail extends Component {
     render() {
         // не забываем конвертировать user_id из localStorage в int для сравнения
         // (по умолчанию всё из localStorage считывается, как строка).
-        const currentUserId = parseInt(localStorage.getItem('id'));
-        const {username, first_name, last_name, email} = this.state.user;
+        const currentUserId = this.props.auth.id;
+        const {username, first_name, last_name, email, id} = this.props.user.user;
+        console.log(this.props.user.user.username);
         const alert = this.state.alert;
         return <Fragment>
             {alert ? <div className={"alert mt-3 py-2 alert-" + alert.type} role="alert">{alert.text}</div> : null}
@@ -60,12 +51,12 @@ class UserDetail extends Component {
 
             {/* весь блок формы выходит только если страница принадлежит текущему пользователю */}
             {/* и данные пользователя (откуда берётся id для сравнения) загрузились. */}
-            {currentUserId === this.state.user.id ? <Fragment>
+            {currentUserId === id ? <Fragment>
                 <div className="my-4">
                     <button className="btn btn-primary" type="button" onClick={this.toggleEdit}>Редактировать</button>
                     <div className={this.state.edit ? "mt-4" : "mt-4 collapse"}>
                         <h2>Редактировать</h2>
-                        <UserForm user={this.state.user} onUpdateSuccess={this.onUserUpdate}/>
+                        <UserForm user={this.props.user.user} onUpdateSuccess={this.onUserUpdate}/>
                     </div>
                 </div>
             </Fragment> : null}
@@ -73,4 +64,16 @@ class UserDetail extends Component {
     }
 }
 
-export default UserDetail;
+const mapStateToProps = state => {
+    return {
+        user: state.user,
+        auth: state.auth  // auth нужен, чтобы получить из него токен для запроса
+    }
+};
+const mapDispatchProps = dispatch => {
+    return {
+        loadUser: (id) => dispatch(loadUser(id)),  // прокидываем id в экшен-крейтор loadMovie.
+    }
+};
+
+export default connect(mapStateToProps, mapDispatchProps)(UserDetail);

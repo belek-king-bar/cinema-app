@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import axios from 'axios';
 import {USERS_URL} from "../../api-urls";
-
+import {connect} from "react-redux";
 
 class UserForm extends Component {
     constructor(props) {
@@ -22,7 +22,8 @@ class UserForm extends Component {
     submitForm = (event) => {
         event.preventDefault();
         this.setState({...this.state, submitEnabled: false});
-        const currentUserId = localStorage.getItem('id');
+        const currentUserId = this.props.auth.id;
+        console.log(this.props.auth.id);
         axios.patch(USERS_URL + currentUserId + '/', this.state.user, {
             headers: {'Authorization': 'Token ' + localStorage.getItem('auth-token')}
         }).then(response => {
@@ -114,5 +115,9 @@ class UserForm extends Component {
     }
 }
 
+const mapStateToProps = state => ({
+    auth: state.auth
+});
+const mapDispatchProps = dispatch => ({});
 
-export default UserForm;
+export default connect(mapStateToProps, mapDispatchProps)(UserForm);

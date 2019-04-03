@@ -1,29 +1,20 @@
 import React, {Component, Fragment} from 'react'
-import {register_activate, REGISTER_ACTIVATE_SUCCESS} from '../../../store/actions/register_activate'
+import {activateUser} from '../../../store/actions/register'
 import {connect} from "react-redux";
+import {LOGIN_SUCCESS} from "../../../store/actions/login";
 
 class RegisterActivate extends Component {
-    state = {
-
-    };
-
-    redirect = () => {
-        const {location, history} = this.props;
-        if (location.state) {
-            history.replace('/');
-        } else {
-            history.goBack();
-        }
-    };
 
     componentDidMount() {
         // Чтобы достать токен из строки запроса, нужно её распарсить в объект URLSearchParams.
         const urlParams = new URLSearchParams(this.props.location.search);
         // Запрос делается только если токен есть.
         if (urlParams.has('token')) {
-            const data = {token: urlParams.get('token')};
-            this.props.register_activate(data).then((result) => {
-                if (result.type === REGISTER_ACTIVATE_SUCCESS) this.redirect();
+            const token = urlParams.get('token');
+            this.props.activateUser(token).then((result) => {
+                if (result.type === LOGIN_SUCCESS) {
+                    this.props.history.replace('/')
+                }
             });
         }
     }
@@ -35,9 +26,9 @@ class RegisterActivate extends Component {
             {/* Если токен есть, просим подождать, пока выполняется запрос */}
             {urlParams.has('token') ? <Fragment>
                 {/* если есть ошибка, выводим её */}
-                {this.state.error ? <Fragment>
+                {this.props.error ? <Fragment>
                     <p>Во время активации произошла ошибка:</p>
-                    <p className="text-danger">{this.state.error}</p>
+                    <p className="text-danger">{this.props.error}</p>
                     <p>Попробуйте позже или обратитесь к администратору сайта.</p>
                 </Fragment> : <p>Подтверждается активация, подождите...</p>}
             </Fragment> : <Fragment>
@@ -49,10 +40,10 @@ class RegisterActivate extends Component {
     }
 }
 
-const mapStateToProps = state => state.register_activate;
+const mapStateToProps = state => state.register.activate;
 
 const mapDispatchToProps = dispatch => ({
-    register_activate: (data) => dispatch(register_activate(data))
+    activateUser: (token) => dispatch(activateUser(token))
 });
 
 
