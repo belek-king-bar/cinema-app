@@ -181,7 +181,8 @@ class UserActivateView(GenericAPIView):
             'token': auth_token.key,
             'username': user.username,
             'is_admin': user.is_superuser,
-            'is_staff': user.is_staff
+            'is_staff': user.is_staff,
+            'id': user.id
         })
 
     # за активацию пользователя и удаление токена отвечает этот метод
@@ -195,7 +196,7 @@ class UserActivateView(GenericAPIView):
         return user
 
 
-class UserViewSet(BaseViewSet):
+class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
     queryset = User.objects.all()
 
