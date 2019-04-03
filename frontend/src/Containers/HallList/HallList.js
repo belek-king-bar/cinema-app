@@ -1,21 +1,16 @@
 import React, {Fragment, Component} from 'react';
-import {HALLS_URL, MOVIES_URL} from "../../api-urls";
 import HallCard from "../../Components/HallCard/HallCard.js";
-import axios from 'axios';
+import {loadHalls} from "../../store/actions/hall_list";
+import {connect} from "react-redux";
+import axios, {HALLS_URL} from "../../api-urls"
+
 
 
 // компонент для показа списка фильмов клиенту
 // фильмы запрашиваются из API в момент показа компонента на странце (mount)
 class HallList extends Component {
-    state = {
-        halls: [],
-    };
-
     componentDidMount() {
-        axios.get(HALLS_URL)
-            .then(response => {console.log(response.data); return response.data;})
-            .then(halls => this.setState({halls}))
-            .catch(error => console.log(error));
+        this.props.loadHalls();
     }
 
     hallDeleted = (hallId) => {
@@ -49,7 +44,7 @@ class HallList extends Component {
     render() {
         return <Fragment>
             <div className='row'>
-                {this.state.halls.map(hall => {
+                {this.props.halls.map(hall => {
                     return <div className='col-xs-12 col-sm-6 col-lg-4 mt-3'  key={hall.id}>
                         <HallCard hall={hall} onDelete={() => this.hallDeleted(hall.id)}/>
                     </div>
@@ -59,5 +54,10 @@ class HallList extends Component {
     }
 }
 
+const mapStateToProps = (state) => state.hallList;
+const mapDispatchToProps = (dispatch) => ({
+    loadHalls: () => dispatch(loadHalls())
+});
 
-export default HallList;
+
+export default connect(mapStateToProps, mapDispatchToProps)(HallList);

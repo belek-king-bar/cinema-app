@@ -1,77 +1,31 @@
 import React, {Component} from 'react'
-import {HALLS_URL, SHOWS_URL} from "../../api-urls";
-import axios from 'axios';
 import {NavLink} from "react-router-dom";
-import moment from 'moment';
 import ShowSchedule from "../../Components/ShowSchedule/ShowSchedule";
 import connect from "react-redux/es/connect/connect";
-
+import {loadHall} from "../../store/actions/hall_edit";
+import {loadHallShow} from "../../store/actions/show_load";
 
 // компонент, который выводит одну карточку с фильмом
 // фильм также загружается при выводе компонента на экран (mount),
 // а не при обновлении (didUpdate), т.к. компонент выводится на отдельной странице,
 // и при переключении страниц исчезает с экрана, а потом снова маунтится.
 class HallDetail extends Component {
-    state = {
-        hall: null,
-        shows: null
-    };
-
     componentDidMount() {
-        // match - атрибут, передаваемый роутером, содержащий путь к этому компоненту
-        const match = this.props.match;
-
-        // match.params - переменные из пути (:id)
-        // match.params.id - значение переменной, обозначенной :id в свойстве path Route-а.
-        axios.get(HALLS_URL + match.params.id)
-            .then(response => {console.log(response.data); return response.data;})
-            .then(hall => {
-                this.setState({hall});
-
-                this.loadShows(hall.id);
-            })
-            .catch(error => console.log(error));
+        this.props.loadHall(this.props.match.params.id);
+        this.props.loadHallShow(this.props.match.params.id)
     }
-
-    loadShows = (hallId) => {
-        // https://momentjs.com/ - библиотека для работы с датой и временем в JS
-        // более удобная, чем встроенный класс Date(). Не забудьте импортировать.
-        // установка: npm install --save moment (уже ставится вместе с реактом)
-        // импорт: import moment from 'moment';
-
-        // вернёт текущую дату со временем в формате ISO с учётом временной зоны
-        const startsAfter = moment().format('YYYY-MM-DD HH:mm');
-        // вернёт только дату на 3 дня вперёд от текущей в указанном формате
-        const startsBefore = moment().add(3, 'days').format('YYYY-MM-DD');
-
-        // encodeURI закодирует строку для передачи в запросе
-        // отличается от encodeURIComponent тем, что пропускает символы,
-        // входящие в формат URI, в т.ч. & и =.
-        const query = encodeURI(`hall_id=${hallId}&starts_after=${startsAfter}&starts_before=${startsBefore}`);
-        axios.get(`${SHOWS_URL}?${query}`).then(response => {
-            console.log(response);
-            this.setState(prevState => {
-                let newState = {...prevState};
-                newState.shows = response.data;
-                return newState;
-            })
-        }).catch(error => {
-            console.log(error);
-            console.log(error.response);
-        });
-    };
 
     render() {
         const {is_admin} = this.props.auth;
         // если movie в state нет, ничего не рисуем.
-        if (!this.state.hall) return null;
+        if (!this.props.hallDetail.hall) return null;
 
         return <div className="text-center">
 
             {/* название фильма */}
-            <h1>{this.state.hall.name}</h1>
+            <h1>{this.props.hallDetail.hall.name}</h1>
 
-            {this.state.hall.seat.map(seat => {
+            {this.props.hallDetail.hall.seat.map(seat => {
                     return (
                         <p>Ряд: {seat.row} Место: {seat.place}</p>
                     )
@@ -79,21 +33,30 @@ class HallDetail extends Component {
 
             )}
 
-            {is_admin ? <NavLink to={'/halls/' + this.state.hall.id + '/edit'} className="btn btn-primary mr-2">Edit</NavLink>
+            {is_admin ? <NavLink to={'/halls/' + this.props.hallDetail.hall.id + '/edit'} className="btn btn-primary mr-2">Edit</NavLink>
                 : null}
 
             {/* назад */}
             <NavLink to='/halls' className="btn btn-primary">Halls</NavLink>
 
-            {this.state.shows ? <ShowSchedule shows={this.state.shows}/> : null}
+            {this.props.hallDetail.show ? <ShowSchedule shows={this.props.hallDetail.show}/> : null}
+            {console.log(this.props.hallDetail.show)}
 
         </div>;
     }
 }
 
-const mapStateToProps = state => ({auth: state.auth});
-// никаких дополнительных действий здесь не нужно
-const mapDispatchToProps = dispatch => ({});
+const mapStateToProps = state => {
+    return {
+        hallDetail: state.hallDetail,
+        auth: state.auth  // auth нужен, чтобы получить из него токен для запроса
+    }
+};
+const mapDispatchProps = dispatch => {
+    return {
+        loadHall: (id) => dispatch(loadHall(id)),  // прокидываем id в экшен-крейтор loadMovie.
+        loadHallShow: (hallId) => dispatch(loadHallShow(hallId))
+    }
+};
 
-
-export default connect(mapStateToProps, mapDispatchToProps)(HallDetail);
+export default connect(mapStateToProps, mapDispatchProps)(HallDetail);

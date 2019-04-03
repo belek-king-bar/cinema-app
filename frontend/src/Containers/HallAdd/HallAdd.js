@@ -1,98 +1,39 @@
-import React, {Component} from 'react';
-import {HALLS_URL} from "../../api-urls";
-import axios from 'axios';
+import React, {Component, Fragment} from 'react';
+import HallForm from "../../Components/HallForm/HallForm";
+import {HALL_ADD_SUCCESS, saveHall} from "../../store/actions/hall_add";
+import {connect} from "react-redux";
 
 
 class HallAdd extends Component {
-    state = {
-        hall: {
-            name: "",
-        },
 
-        errors: null,
-        submitDisabled: false
-    };
-
-    updateHallState = (fieldName, value) => {
-        this.setState(prevState => {
-            let newState = {...prevState};
-            let hall = {...prevState.hall};
-            hall[fieldName] = value;
-            console.log(value);
-            newState.hall= hall;
-            return newState;
+    // обработчик отправки формы
+    formSubmitted = (hall) => {
+        const {auth} = this.props;
+        return this.props.saveHall(hall, auth.token).then(result => {
+            if(result.type === HALL_ADD_SUCCESS) {
+                this.props.history.push('/halls/' + result.hall.id);
+            }
         });
-    };
-
-    inputChanged = (event) => {
-        const value = event.target.value;
-        const fieldName = event.target.name;
-        this.updateHallState(fieldName, value);
-    };
-
-    formSubmitted = (event) => {
-        event.preventDefault();
-
-        this.setState(prevState => {
-            let newState = {...prevState};
-            newState.submitDisabled = true;
-            return newState;
-        });
-
-        console.log(this.state.hall);
-
-
-        axios.post(HALLS_URL, this.state.hall, {headers: {
-                Authorization: "Token " + localStorage.getItem('auth-token')
-            }})
-            .then(response => {
-                console.log(response.data);
-                if (response.status === 201) return response.data;
-                throw new Error('Hall was not created');
-            })
-
-            .then(hall => this.props.history.replace('/halls/' + hall.id))
-            .catch(error => {
-                console.log(error);
-                this.setState(prevState => {
-                    let newState = {...prevState};
-                    newState.errors = error.response.data;
-                    newState.submitDisabled = false;
-                    return newState;
-                });
-            });
-    };
-
-    showErrors = (name) => {
-        if(this.state.errors && this.state.errors[name]) {
-            return this.state.errors[name].map((error, index) => <p className="text-danger" key={index}>{error}</p>);
-        }
-        return null;
     };
 
     render() {
-
-        let alert = null;
-        if (this.state.alert) {
-            alert = <div className={"alert alert-" + this.state.alert.type}>{this.state.alert.message}</div>
-        }
-
-     return <div className="mt-3">
-            {alert}
-            <form onSubmit={this.formSubmitted}>
-                {this.showErrors('non_field_errors')}
-                <div className="form-group">
-                    <label className="font-weight-bold">Название</label>
-                    <input type="text" className="form-control" name="name" value={this.state.hall.name}
-                           onChange={this.inputChanged}/>
-                    {this.showErrors('name')}
-                </div>
-                <button disabled={this.state.submitDisabled} type="submit"
-                        className="btn btn-primary">Сохранить</button>
-            </form>
-        </div>;
+        const {errors} = this.props.hallAdd;
+        return <Fragment>
+            <HallForm onSubmit={this.formSubmitted} errors={errors}/>
+        </Fragment>
     }
 }
 
+const mapStateToProps = state => {
+    return {
+        hallAdd: state.hallAdd,
+        auth: state.auth  // auth нужен, чтобы получить из него токен для запроса
+    }
+};
+const mapDispatchProps = dispatch => {
+    return {
+        saveHall: (hall, token) => dispatch(saveHall(hall, token))
+    }
+};
 
-export default HallAdd;
+export default connect(mapStateToProps, mapDispatchProps)(HallAdd);
