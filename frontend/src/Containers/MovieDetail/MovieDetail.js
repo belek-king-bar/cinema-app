@@ -1,72 +1,26 @@
 import React, {Component} from 'react'
-import {MOVIES_URL, SHOWS_URL} from "../../api-urls";
 import {NavLink} from "react-router-dom";
 import MovieCategories from "../../Components/MovieCategories/MovieCategories";
-import axios from 'axios';
-import moment from 'moment';
 import ShowSchedule from "../../Components/ShowSchedule/ShowSchedule";
-import connect from "react-redux/es/connect/connect";
+import {loadMovie} from "../../store/actions/movie_edit";
+import {loadMovieShow} from "../../store/actions/show_load";
+import {connect} from "react-redux";
 
 // компонент, который выводит одну карточку с фильмом
 // фильм также загружается при выводе компонента на экран (mount),
 // а не при обновлении (didUpdate), т.к. компонент выводится на отдельной странице,
 // и при переключении страниц исчезает с экрана, а потом снова маунтится.
 class MovieDetail extends Component {
-    state = {
-        movie: null,
-        shows: null
-    };
-
     componentDidMount() {
-        // match - атрибут, передаваемый роутером, содержащий путь к этому компоненту
-        const match = this.props.match;
-
-        // match.params - переменные из пути (:id)
-        // match.params.id - значение переменной, обозначенной :id в свойстве path Route-а.
-        axios.get(MOVIES_URL + match.params.id)
-            .then(response => {console.log(response.data); return response.data;})
-            .then(movie => {
-                this.setState({movie});
-
-                this.loadShows(movie.id);
-            })
-            .catch(error => console.log(error));
+        this.props.loadMovie(this.props.match.params.id);
+        this.props.loadMovieShow(this.props.match.params.id)
     }
-
-    loadShows = (movieId) => {
-        // https://momentjs.com/ - библиотека для работы с датой и временем в JS
-        // более удобная, чем встроенный класс Date(). Не забудьте импортировать.
-        // установка: npm install --save moment (уже ставится вместе с реактом)
-        // импорт: import moment from 'moment';
-
-        // вернёт текущую дату со временем в формате ISO с учётом временной зоны
-        const startsAfter = moment().format('YYYY-MM-DD HH:mm');
-        // вернёт только дату на 3 дня вперёд от текущей в указанном формате
-        const startsBefore = moment().add(3, 'days').format('YYYY-MM-DD');
-
-        // encodeURI закодирует строку для передачи в запросе
-        // отличается от encodeURIComponent тем, что пропускает символы,
-        // входящие в формат URI, в т.ч. & и =.
-        const query = encodeURI(`movie_id=${movieId}&starts_after=${startsAfter}&starts_before=${startsBefore}`);
-        axios.get(`${SHOWS_URL}?${query}`).then(response => {
-            console.log(response);
-            this.setState(prevState => {
-                let newState = {...prevState};
-                newState.shows = response.data;
-                return newState;
-            })
-        }).catch(error => {
-            console.log(error);
-            console.log(error.response);
-        });
-    };
 
     render() {
         // если movie в state нет, ничего не рисуем.
-        if (!this.state.movie) return null;
+        if (!this.props.movieDetail.movie) return null;
 
-        // достаём данные из movie
-        const {name, poster, description, release_date, finish_date, categories, id} = this.state.movie;
+        const {name, poster, description, release_date, finish_date, categories, id} = this.props.movieDetail.movie;
         const {is_admin} = this.props.auth;
 
         return <div className="mb-4">
@@ -91,15 +45,23 @@ class MovieDetail extends Component {
             {/* назад */}
             <NavLink to='' className="btn btn-primary">Movies</NavLink>
 
-            {this.state.shows ? <ShowSchedule shows={this.state.shows} c_type={'hall'}/> : null}
+            {this.props.movieDetail.show ? <ShowSchedule shows={this.props.movieDetail.show} c_type={'hall'}/> : null}
 
         </div>;
     }
 }
 
-const mapStateToProps = state => ({auth: state.auth});
-// никаких дополнительных действий здесь не нужно
-const mapDispatchToProps = dispatch => ({});
+const mapStateToProps = state => {
+    return {
+        movieDetail: state.movieDetail,
+        auth: state.auth  // auth нужен, чтобы получить из него токен для запроса
+    }
+};
+const mapDispatchProps = dispatch => {
+    return {
+        loadMovie: (id) => dispatch(loadMovie(id)),  // прокидываем id в экшен-крейтор loadMovie.
+        loadMovieShow: (movieId) => dispatch(loadMovieShow(movieId))
+    }
+};
 
-
-export default connect(mapStateToProps, mapDispatchToProps)(MovieDetail);
+export default connect(mapStateToProps, mapDispatchProps)(MovieDetail);
