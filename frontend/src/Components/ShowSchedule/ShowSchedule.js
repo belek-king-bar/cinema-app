@@ -16,7 +16,7 @@ const ShowSchedule = props => {
         <h2>Расписание показов</h2>
         {props.shows.map(show => {
             console.log(show, 'show');
-            return <p key={show.id}>{formatDate(show.starts_at)}, {(props.c_type === 'hall') ? show.hall_name : show.movie_name}</p>
+            return <p key={show.id}>{formatDate(show.start_datetime)}, {(props.c_type === 'hall') ? show.hall_name : show.movie_name}</p>
         })}
     </div>
 };
