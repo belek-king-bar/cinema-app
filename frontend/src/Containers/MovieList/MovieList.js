@@ -1,8 +1,9 @@
 import React, {Fragment, Component} from 'react'
 import MovieCard from "../../Components/MovieCard/MovieCard";
 import {loadMovies} from "../../store/actions/movie_list";
+import {DELETE_SUCCESS, deleteMovieHall} from "../../store/actions/delete";
 import {connect} from "react-redux";
-import axios, {MOVIES_URL} from "../../api-urls"
+import {MOVIES_URL} from "../../api-urls"
 
 
 // компонент для показа списка фильмов клиенту
@@ -15,25 +16,13 @@ class MovieList extends Component {
 
 
     movieDeleted = (movieId) => {
-        if(localStorage.getItem('auth-token')) {
-            axios.delete(MOVIES_URL + movieId + '/', {
-                headers: {
-                    Authorization: "Token " + localStorage.getItem('auth-token')
+        console.log(this.props.auth.is_admin);
+        if(this.props.auth.is_admin) {
+            this.props.deleteMovieHall(MOVIES_URL, movieId).then(result => {
+                if(result.type === DELETE_SUCCESS) {
+                    this.props.loadMovies()
                 }
-            }).then(response => {
-                console.log(response.data);
-                this.setState(prevState => {
-                    let newState = {...prevState};
-                    let movies = [...newState.movies];
-                    let movieIndex = movies.findIndex(movie => movie.id === movieId);
-                    movies.splice(movieIndex, 1);
-                    newState.movies = movies;
-                    return newState;
-                })
-            }).catch(error => {
-                console.log(error);
-                console.log(error.response);
-            });
+            })
         } else {
             this.props.history.push({
                 pathname: "/login",
@@ -43,9 +32,10 @@ class MovieList extends Component {
     };
 
     render() {
+        console.log(this.props.movieList);
         return <Fragment>
             <div className='row'>
-                {this.props.movies.map(movie => {
+                {this.props.movieList.movies.map(movie => {
                     return <div className='col-xs-12 col-sm-6 col-lg-4 mt-3'  key={movie.id}>
                         <MovieCard movie={movie} onDelete={() => this.movieDeleted(movie.id)}/>
                     </div>
@@ -55,9 +45,14 @@ class MovieList extends Component {
     }
 }
 
-const mapStateToProps = (state) => state.movieList;
+const mapStateToProps = (state) => ({
+    movieList: state.movieList,
+    auth: state.auth
+});
+
 const mapDispatchToProps = (dispatch) => ({
-    loadMovies: () => dispatch(loadMovies())
+    loadMovies: () => dispatch(loadMovies()),
+    deleteMovieHall: (URL, id) => dispatch(deleteMovieHall(URL, id))
 });
 
 

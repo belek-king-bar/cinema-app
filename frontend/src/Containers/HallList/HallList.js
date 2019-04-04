@@ -2,7 +2,8 @@ import React, {Fragment, Component} from 'react';
 import HallCard from "../../Components/HallCard/HallCard.js";
 import {loadHalls} from "../../store/actions/hall_list";
 import {connect} from "react-redux";
-import axios, {HALLS_URL} from "../../api-urls"
+import {HALLS_URL} from "../../api-urls"
+import {DELETE_SUCCESS, deleteMovieHall} from "../../store/actions/delete";
 
 
 
@@ -14,25 +15,13 @@ class HallList extends Component {
     }
 
     hallDeleted = (hallId) => {
-        if(localStorage.getItem('auth-token')) {
-            axios.delete(HALLS_URL + hallId + '/', {
-                headers: {
-                    Authorization: "Token " + localStorage.getItem('auth-token')
+        console.log(this.props.auth.is_admin);
+        if(this.props.auth.is_admin) {
+            this.props.deleteMovieHall(HALLS_URL, hallId).then(result => {
+                if(result.type === DELETE_SUCCESS) {
+                    this.props.loadHalls()
                 }
-            }).then(response => {
-                console.log(response.data);
-                this.setState(prevState => {
-                    let newState = {...prevState};
-                    let halls = [...newState.halls];
-                    let hallIndex = halls.findIndex(hall => hall.id === hallId);
-                    halls.splice(hallIndex, 1);
-                    newState.halls = halls;
-                    return newState;
-                })
-            }).catch(error => {
-                console.log(error);
-                console.log(error.response);
-            });
+            })
         } else {
             this.props.history.push({
                 pathname: "/login",
@@ -41,10 +30,11 @@ class HallList extends Component {
         }
     };
 
+
     render() {
         return <Fragment>
             <div className='row'>
-                {this.props.halls.map(hall => {
+                {this.props.hallList.halls.map(hall => {
                     return <div className='col-xs-12 col-sm-6 col-lg-4 mt-3'  key={hall.id}>
                         <HallCard hall={hall} onDelete={() => this.hallDeleted(hall.id)}/>
                     </div>
@@ -54,9 +44,14 @@ class HallList extends Component {
     }
 }
 
-const mapStateToProps = (state) => state.hallList;
+const mapStateToProps = (state) => ({
+    hallList: state.hallList,
+    auth: state.auth
+});
+
 const mapDispatchToProps = (dispatch) => ({
-    loadHalls: () => dispatch(loadHalls())
+    loadHalls: () => dispatch(loadHalls()),
+    deleteMovieHall: (URL, id) => dispatch(deleteMovieHall(URL, id))
 });
 
 
